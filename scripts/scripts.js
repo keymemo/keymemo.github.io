@@ -88,6 +88,7 @@ app.state2 = function () {
     header_input.focus();
     timer_autosave_in.init();
     app.online_offline.onclick = app.logout;
+    app.online_offline.innerHTML='Logout';
 }
 
 
@@ -387,11 +388,6 @@ app.changePassPhrase = function () {
 
     app.need_save = true;
     app.logout();
-
-    /*app.passPhrase = new_passPhrase;
-    refresh_div_list_secrets();
-
-    app.div_settings.style.display = 'none';*/
 }
 
 
@@ -1806,11 +1802,11 @@ app.get_last_keymemo = async function (FOLDER_ID, callback_set_list_secrets_HTML
                                                 }
                                             });
                                         } else {
-                                            // getContentOfFile(undefined);
                                             console.log('error');
                                             header_input.value = 'default_PassPhrase';
                                             set_passphrase();
                                             app.logo_drive.classList = 'logo_drive';
+                                            app.logo_drive.setAttribute('title', 'Not saved.');
                                             app.spinner_none();
                                         }
                                     });
