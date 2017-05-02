@@ -1,4 +1,4 @@
-var dataCacheName = 'keymemo-org-v1.20';
+var dataCacheName = 'keymemo-org-v1.21';
 var cacheName = 'keymemo-org-PWA--1';
 var filesToCache = [
   '/',
