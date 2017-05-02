@@ -1785,6 +1785,7 @@ app.get_last_keymemo = async function (FOLDER_ID, callback_set_list_secrets_HTML
                                                     myXHR.open('GET', theResponseJS.downloadUrl, true);
                                                     let originalFilename = theResponseJS.originalFilename;
                                                     app.logo_drive.setAttribute('title', originalFilename);
+                                                    app.online_offline.innerHTML='Synchronized';
                                                     myXHR.setRequestHeader('Authorization', 'Bearer ' + myToken.access_token);
                                                     myXHR.onreadystatechange = async function (theProgressEvent) {
                                                         if (myXHR.readyState == 4) {
