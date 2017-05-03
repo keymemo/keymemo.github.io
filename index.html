@@ -8,7 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KeyMemo</title>
+    <title>KeyMemo.next</title>
     <link rel="stylesheet" type="text/css" href="styles/style.css">
     <link rel="icon" type="image/png" href="favicon.png" />
     <link rel="icon" sizes="192x192" href="images/icons/icon-192x192.png">
@@ -137,13 +137,13 @@
             <!--  заголовок-->
             <div class="head_name">
                 <div class="col1" id="headerLink">
-                    <div>KeyMemo</div>
+                    <span>KeyMemo.<wbr>next</span>
                 </div>
                 <div class="col3">
                     <button id="headerButton" class="Button">☓</button>
                 </div>
                 <div class="col2" id="header_input_div">
-                    <input class="header_input" type="text" id="header_input" autofocus placeholder="KeyMemo" autocomplete="new-password" name="fakenameremembered" />
+                    <input class="header_input" type="text" id="header_input" autofocus placeholder="Initialization" autocomplete="new-password" name="fakenameremembered" />
                 </div>
             </div>
 
@@ -214,9 +214,6 @@
                 </div>
                 <div id="floater_inner_settings" style="text-align: center;" class="floater-inner">
                     <div id="form_settings">
-                        <!--                    <label class="label0">Name folder on google drive</label>
-                    <input id="input_import_from_keymemo_com" type="text" value="keymemo" class="field_input" />
-                    <a href="#import_keymemo" id="import_from_keymemo_com_a" class="button_active">Apply</a>-->
                         <hr>
                         <a href="#remove_local_data" id="remove_local_data" class="button_active" onclick="app.remove_local_data();" style="background-color: red;"> Remove local data </a>
                         <hr>
@@ -228,7 +225,6 @@
                         on local disk
                     </label>
                         <hr>
-                        <!--                    <a href="#save_as_HTML_file_on_drive_google_com" id="save_as_HTML_file_on_drive_google_com" class="button_not_active" onclick="app.save_as_HTML_file_on_drive_google_com();">Save as HTML page</a>-->
                         <a href="#file_on_drive_google_com" id="file_on_drive_google_com" class="button_active" onclick="app.save_as_HTML_file_on_drive_google_com();">Save as HTML</a>
                         <label class="label0">
                         on drive.google.com

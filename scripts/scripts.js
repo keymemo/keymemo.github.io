@@ -88,7 +88,7 @@ app.state2 = function () {
     header_input.focus();
     timer_autosave_in.init();
     app.online_offline.onclick = app.logout;
-    app.online_offline.innerHTML='Logout';
+    app.online_offline.innerHTML = 'Logout';
 }
 
 
@@ -1397,14 +1397,9 @@ app.edit_secret = function (source_div, link_on_secret) {
             async function () {
                 let SecretName = get_name_secret(intermediate_div);
                 if (SecretName.innerHTML !== '') {
-                    // скрываем
-                    app.div_edited_secret.style.display = 'none';
-                    app.div_edited_secret.innerHTML = '';
-
                     // удаляем источник секрета
                     if (source_div) {
                         source_div.remove();
-                        app.recreate_view_secrets();
                     }
 
                     // обновляем дату "последнее изменение"
@@ -1419,14 +1414,19 @@ app.edit_secret = function (source_div, link_on_secret) {
                     // номер в списке секретов
                     let index = app.sorting_one_div(app.div_list_secrets.childElementCount - 1);
 
-                    // скрол к сохранненому элементу
                     app.recreate_view_secrets();
+                    app.search_header_input();
 
+                    // скрываем
+                    app.div_edited_secret.style.display = 'none';
+                    app.div_edited_secret.innerHTML = '';
+
+                    // скрол к сохранненому элементу
                     let current_secret = app.div_view_secrets.childNodes[index];
-
                     current_secret.parentNode.scrollTop = current_secret.offsetTop;
                     // подсвечиваем
                     current_secret.firstChild.classList = 'link_on_secret link_on_secret_add';
+                    header_input.focus();
                 } else {
                     document.getElementById('SecretName').focus();
                 }
@@ -1785,7 +1785,7 @@ app.get_last_keymemo = async function (FOLDER_ID, callback_set_list_secrets_HTML
                                                     myXHR.open('GET', theResponseJS.downloadUrl, true);
                                                     let originalFilename = theResponseJS.originalFilename;
                                                     app.logo_drive.setAttribute('title', originalFilename);
-                                                    app.online_offline.innerHTML='Synchronized';
+                                                    app.online_offline.innerHTML = 'Synchronized';
                                                     myXHR.setRequestHeader('Authorization', 'Bearer ' + myToken.access_token);
                                                     myXHR.onreadystatechange = async function (theProgressEvent) {
                                                         if (myXHR.readyState == 4) {
