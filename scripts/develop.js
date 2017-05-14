@@ -7,13 +7,12 @@
 set_passphrase = function () {
     //    app.passPhrase =  header_input.value;
     app.passPhrase = (header_input.value === '') ? 'default_PassPhrase' : header_input.value;
-    header_input.value='';
+    header_input.value = '';
     app.state2();
 }
 
 menuButton = function () {
     'use strict';
-    //    div_hide_id('select_secrets_and_control_elements');
     div_show_id('div_settings');
 };
 
@@ -30,8 +29,6 @@ function state() {
             app.header_input_div.style.marginLeft = 140;
             // кнопка ⧖ ☓
             app.header_button.innerHTML = '☓';
-            // click кнопки
-            //            app.header_button.onclick = set_passphrase;
             // обработка Enter
             app.header_input.onkeyup = app.keyEnter;
         },
@@ -73,46 +70,52 @@ fnDelay = (function () {
 // управление автосохранением
 function timer_autosave(value) {
     'use strict';
-    let time_log_out = 0;
+    let time_logout = 0;
     var timer = 0;
     var _this = this;
     return {
         // тики таймера
         tick: function () {
-            time_log_out--;
+            time_logout--;
 
-            if (time_log_out % 2) {
+            if (time_logout % 2) {
                 autosave_in.classList = 'autosave_in';
             } else {
                 autosave_in.classList = 'autosave_in_alarm';
             }
-            if (time_log_out < 1) {
+            if (time_logout < 1) {
                 clearTimeout(_this.timer);
                 _this.timer = 0;
                 _this.exit();
             }
-            autosave_in.innerHTML = time_log_out;
+            autosave_in.innerHTML = time_logout;
 
         },
         // инициализация таймера
         init: function () {
             _this = this;
-            time_log_out = 10;
-            autosave_in.innerHTML = time_log_out;
-            _this.timer = setInterval(this.tick, (time_log_out * 6000));
-            //            _this.timer = setInterval(this.tick, (time_log_out * 60));
+            time_logout = 10;
+            autosave_in.innerHTML = time_logout;
+            _this.timer = setInterval(this.tick, (time_logout * 6000));
+            //            _this.timer = setInterval(this.tick, (time_logout * 60));
         },
         // сброс таймера
         reset: function () {
             if (_this && _this.timer && _this.timer !== 0) {
-                time_log_out = 10;
-                autosave_in.innerHTML = time_log_out;
+                time_logout = 10;
+                if (typeof autosave_in != 'undefined') {
+                    autosave_in.innerHTML = time_logout;
+                }
             }
         },
         // автоматическое сохранение
         exit: async function () {
             autosave_in.innerHTML = 'now';
             await app.logout();
+        },
+        // удаление таймера
+        remove: async function () {
+            clearTimeout(_this.timer);
         }
     }
 }

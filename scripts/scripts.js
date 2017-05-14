@@ -11,14 +11,12 @@ var app = {
     need_save: false,
     // id папки на drive.google.com
     folder_id_drive_google_com: localStorage['folder_id_drive_google_com'],
-    // id последней версии файла
+    // id файла последней версии
     last_file_id_keymemo_com_on_drive_google_com: localStorage['last_file_id_keymemo_com_on_drive_google_com'],
     //
     welcome_phrase: localStorage['welcome_phrase'],
     // список секретов
     div_list_secrets: document.getElementById('div_list_secrets'),
-    // дата сохранения секретов
-    lastChange_list_secrets: localStorage['lastChange_list_secrets'],
     // ** интерфейс **
     page_container: document.getElementById('page_container'),
     // параметры заголовка
@@ -42,35 +40,64 @@ var app = {
     import_from_keymemo_com_button: document.getElementById('import_from_keymemo_com_button'),
 };
 
+// вывод даты изменения списка секретов
+app.set_last_change_list_secrets = function () {
+    // дата последнего изменения списка секретов
+    let temp_div = document.getElementById('temp_div');
+    temp_div.innerHTML = JSON.parse(localStorage['list_secrets']);
+    app.last_change_list_secrets.innerHTML = app.last_change_get(temp_div.children[0]);
+
+    temp_div.innerHTML = '';
+    // если запускается на https://keymemo.github.io/
+    // то предложить инструкцию по размещению на своих мощностях
+    if ('keymemo.github.io' === window.location.hostname.toString()) {
+        // ссылка на инструкцию
+        app.last_change_list_secrets.innerHTML = app.last_change_list_secrets.innerHTML +
+            '<p><a href="https://github.com/keymemo/keymemo.github.io/blob/master/place_on_your_site.md" target="_blank" class="link_external">Place on your site(self-hosted).</a></p>';
+    }
+}
 // состояние 0 - старт программы
-// проверка места хранения
-//
 app.state0 = async function () {
     'use strict';
     title_state.state0();
-    // выключаем спинер через 30 сек.
-    setTimeout(
-        function () {
-            app.spinner_none();
-        }, 30000
-    )
+    /*   // выключаем спинер через 30 сек.
+       setTimeout(
+           function () {
+               app.spinner_none();
+           }, 30000
+       )*/
     // если определена папка для хранения секретов на drive.google.com - авторизуемся на гугле
     if (localStorage['list_secrets']) {
         online_offline.innerHTML = 'offline';
+        app.set_last_change_list_secrets();
         app.local_login(app.state1);
-
     } else {
         online_offline.innerHTML = 'online';
-        await select_folder_on_drive_google_com(app.state1);
+        // проверка разрешены ли всплывающие окна для авторизации google
+        var newwindow = window.open(
+            "https://accounts.google.com/o/oauth2/auth",
+            "popupcheck",
+            "width=100, heihgt=100,directories=no.menubar=no,toolbar=no");
+        if (newwindow) {
+            // popups разрешены
+            newwindow.close();
+            await select_folder_on_drive_google_com(app.state1);
+        } else {
+            document.getElementById('spinner').innerHTML =
+                '<p class="warning_text"><br>' +
+                'You need to allow pop-ups <br>to access drive.google.com.<br><br>' +
+                'Reload the page.</p>';
+        }
     }
 }
 
 // состояние 1
-// проверка актуальности имеющейся базы
+// место хранения есть
 app.state1 = function () {
     'use strict';
     title_state.state1();
     header_input.focus();
+    app.set_last_change_list_secrets();
 }
 
 /**
@@ -1341,8 +1368,6 @@ app.edit_secret = function (source_div, link_on_secret) {
         lastChange_secrets.setAttribute('id', 'lastChange_secrets');
 
         let lastChange_secret_title = document.createElement('div');
-        //        class="text_controls_element"
-        //        lastChange_secret_title.setAttribute('id', 'lastChange_secret_title');
         lastChange_secret_title.classList = "lastChange_secret_title";
         lastChange_secret_title.innerHTML = 'Last change:<br>';
         lastChange_secret_title.appendChild(lastChange_secrets);
@@ -1702,6 +1727,7 @@ app.fileTitle = function () {
 app.save_as_HTML_file_on_drive_google_com = async function (callback) {
     'use strict';
     app.div_settings.style.display = 'none';
+    app.unregister_service_worker();
 
     var metadata = {
         'title': app.fileTitle(),
@@ -1913,13 +1939,13 @@ app.check_where_newer_list_secret = async function () {
                     if (window.confirm('The data is fresh on drive.google.com.     Download?')) {
                         app.div_list_secrets.innerHTML = gdrive_list_secret.innerHTML;
                         copy_div_attributes(gdrive_list_secret, app.div_list_secrets);
-                        //       app.recreate_view_secrets();
                         app.need_save = true;
                         app.logout();
                     }
                 }
-                temp_div.innerHTML = '';
-                // logout при нажатии
+
+                // дата последнего изменения списка секретов
+                app.set_last_change_list_secrets();
             }
         )
     }
@@ -2023,33 +2049,25 @@ function copy_div_attributes(div_source, div_target) {
     // копируем атрибуты
     for (var i = 0; i < div_source.attributes.length; i++) {
         div_target.setAttribute(div_source.attributes[i].name, div_source.attributes[i].value);
-
-        /*for (var i = 0; i < app.div_list_secrets.attributes.length; i++) {
-            list_secret.setAttribute(app.div_list_secrets.attributes[i].name, app.div_list_secrets.attributes[i].value);
-        }*/
-
     }
 }
 
 // очистка localStorage
 app.remove_local_data = function () {
     window.localStorage.clear();
-    //    window.worker.ter .terminate();
-    //    navigator.terminate();
-    delete window.worker;
-    window.location.reload();
+    //    delete window.worker;
+    app.unregister_service_worker();
+    //    window.location.reload();
+    timer_autosave_in.remove();
+    app.div_settings.style.display = 'none';
+    app.div_view_secrets.style.display = 'none';
+    document.getElementById('div_autosave_in').innerHTML = 'Need Reload';
+    document.getElementById('secrets_and_control_element').innerHTML = '';
+    app.spinner_show();
+    document.getElementById('spinner').innerHTML =
+        '<p class="warning_text"><br>' +
+        'Local data removed.<br><br><br>Reload the page.</p>';
 }
-
-/*app.button_import_from_keymemo_com_button = function () {
-    return {
-        enabled: function (value) {
-            app.import_from_keymemo_com_button.disabled = true;
-        },
-        disabled: function () {
-            app.import_from_keymemo_com_button.disabled = false;
-        }
-    }
-}*/
 
 app.import_from_keymemo_com = function () {
     let import_from_keymemo_com_login = document.getElementById('import_from_keymemo_com_login').value.length;
@@ -2060,6 +2078,13 @@ app.import_from_keymemo_com = function () {
         app.import_from_keymemo_com_button.disabled = true;
     }
 }
-/*
 
-            document.getElementById('inputpassword').value = document.getElementById('import_from_keymemo_com_password').value;*/
+
+// дерегистрация worker
+app.unregister_service_worker = function () {
+    navigator.serviceWorker.getRegistrations().then(function (registrations) {
+        for (let registration of registrations) {
+            registration.unregister();
+        }
+    })
+}

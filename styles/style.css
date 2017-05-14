@@ -5,22 +5,15 @@
 }
 
 .head_name {
-    /*            position: fixed;*/
     top: 0;
     overflow: hidden;
     padding: 10px 10px 0 10px;
     background: #3F51B5;
     color: #FFF;
     height: 40px;
-    /*            min-width: 300px;*/
-    /*    position: fixed;*/
-    /*    width: 100%;*/
-    /*    font-size: 20px;*/
 }
 
 #secret_add {
-    /*    float: right;*/
-    /*    display: block;*/
     text-align: right;
 }
 
@@ -30,9 +23,7 @@
     margin-right: auto;
 }
 
-#view_secrets {
-    /*    border: 2px solid grey;*/
-}
+#view_secrets {}
 
 .form_hidden {
     position: fixed;
@@ -45,7 +36,6 @@
 }
 
 .col1 {
-    /*            background: white;*/
     color: white;
     float: left;
     width: 74px;
@@ -55,7 +45,6 @@
 .col2 {
     background: #E0D2C7;
     margin: 0 45px 0 75px;
-    /* Отступ справа и слева */
 }
 
 .col3 {
@@ -122,6 +111,8 @@
 
 /*текст элементов управления*/
 
+.warning_text,
+.link_external,
 .text_controls_element,
 .buton_copy_active,
 .buton_copy_not_active,
@@ -194,7 +185,6 @@
 .field_title_link {
     float: left;
     width: 80px;
-    /*    width: 30%;*/
     text-align: right;
     font-size: 120%;
 }
@@ -215,7 +205,6 @@
     font-size: 190%;
     font-family: monospace ! important;
     font-weight: bold;
-    /*    padding: .25em;*/
     position: relative;
     box-shadow: 0 0 15px #A9A9A9;
     /* Размер и цвет тени блока*/
@@ -228,7 +217,6 @@
     border-radius: 8px;
     display: table;
     width: 100%;
-    /*            background: lightgray;*/
 }
 
 .link_on_secret:hover {
@@ -244,7 +232,6 @@
 }
 
 body {
-    /*            width: 100%;*/
     overflow: hidden;
     margin-top: 0px;
 }
@@ -311,10 +298,8 @@ body {
 #add_field {
     float: right;
     padding: 0px 20px 0px 20px;
-    /*    margin: 0px 10px 0px 10px;*/
     margin-right: 1em;
     margin-bottom: 1em;
-    /*    border: 2px solid #d6e9c6;*/
 }
 
 #add_field {
@@ -332,10 +317,6 @@ body {
 }
 
 #cancel_secret {
-    /*    margin: 0px 0px 20px 0px;*/
-    /*    margin-bottom: 1.7em;*/
-    /*    margin-top: 0.7em;*/
-    /*    padding: 0px 0px 00px 00px;*/
     border: 2px solid red;
 }
 
@@ -346,8 +327,6 @@ body {
 }
 
 .pass_check_symbol_in_password_ckeckbox {
-    /*    display: table-cell;*/
-    /*    border: 0px solid black;*/
     display: inline-block;
     margin: 5px;
 }
@@ -355,7 +334,6 @@ body {
 .pass_check_symbol_in_password {
     display: table;
     width: 100%;
-    /*    text-align: center;*/
 }
 
 #add_field_form {
@@ -397,7 +375,13 @@ body {
     bottom: 0em;
     background: lightgray;
     opacity: 0.85;
-    filter: alpha(opacity=70);
+    filter: alpha(opacity=80);
+}
+
+.warning_text {
+    color: red;
+    text-align: center;
+    font-size: 2em;
 }
 
 .scrollbox {
@@ -410,7 +394,6 @@ body {
 
 .content_with_scroll {
     border: 1px solid green;
-    /*            width: 100px;*/
     height: 100px;
     overflow: auto;
     margin: 48px;
@@ -447,9 +430,6 @@ body {
     color: red;
 }
 
-
-/* внешний DIV перекрывает всё окно */
-
 #form_password_generation {
     position: fixed;
     left: 0;
@@ -458,9 +438,6 @@ body {
     height: 100%;
     z-index: 999;
 }
-
-
-/* в нём находится полупрозрачный экран, на 20px меньше */
 
 #generate_pass_box-inner {
     position: relative;
@@ -493,7 +470,6 @@ body {
     width: 88%;
     border: 1px solid black;
     padding: 5px 5px 5px 55px;
-    /*      background: url(https://js.cx/clipart/key.png) 3px 5px white no-repeat;*/
 }
 
 .form_password_generation_hidden {
@@ -505,34 +481,16 @@ body {
 }
 
 #form_password_gen_pass {
-    /*    добавлено*/
-    /*        position: fixed;*/
-    /*    left: 0;*/
-    /*    top: 0;*/
-    /*    width: 100%;*/
-    /*    height: 100%;*/
     z-index: 999;
-    /*    display: none;*/
-    /*    display: block;*/
-    /*    добавлено*/
-    /*        position: absolute;*/
-    /*    top 50%;*/
-    /*    border: 1px solid red;*/
     display: table;
     width: 100%;
 }
 
 #gen_pass_container {
-    /*        position: absolute;*/
     top: 0;
     bottom: 0;
     right: 0;
     left: 0;
-    центрирование
-    /*                margin: auto;   центрирование */
-    /*                height: 15em;*/
-    /*                max-height: 18em;*/
-    /*                width: 25em;*/
     border: 1px solid black;
     background: white;
     padding: 1%;
@@ -1052,7 +1010,6 @@ hr {
 #div_exit_through {
     padding: 0;
     margin: 0;
-    /*    text-align: right;*/
 }
 .autosave_in {
     -webkit-transition: all 1.5s ease;
@@ -1077,7 +1034,7 @@ hr {
     -webkit-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
 }
-.loader #spinner {
+/*.loader #spinner {
     box-sizing: border-box;
     stroke: #673AB7;
     stroke-width: 3px;
@@ -1085,116 +1042,112 @@ hr {
     transform-origin: 50%;
     -webkit-animation: line 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite, rotate 1.6s linear infinite;
     animation: line 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite, rotate 1.6s linear infinite;
-}
-@-webkit-keyframes rotate {
-    from {
-        -webkit-transform: rotate(0);
-        transform: rotate(0);
-    }
-
-    to {
-        -webkit-transform: rotate(450deg);
-        transform: rotate(450deg);
-    }
-}
-@keyframes rotate {
-    from {
-        -webkit-transform: rotate(0);
-        transform: rotate(0);
-    }
-
-    to {
-        -webkit-transform: rotate(450deg);
-        transform: rotate(450deg);
-    }
-}
-@-webkit-keyframes line {
-    0% {
-        stroke-dasharray: 2, 85.964;
-        -webkit-transform: rotate(0);
-        transform: rotate(0);
-    }
-
-    50% {
-        stroke-dasharray: 65.973, 21.9911;
-        stroke-dashoffset: 0;
-    }
-
-    100% {
-        stroke-dasharray: 2, 85.964;
-        stroke-dashoffset: -65.973;
-        -webkit-transform: rotate(90deg);
-        transform: rotate(90deg);
-    }
-}
-@keyframes line {
-    0% {
-        stroke-dasharray: 2, 85.964;
-        -webkit-transform: rotate(0);
-        transform: rotate(0);
-    }
-
-    50% {
-        stroke-dasharray: 65.973, 21.9911;
-        stroke-dashoffset: 0;
-    }
-
-    100% {
-        stroke-dasharray: 2, 85.964;
-        stroke-dashoffset: -65.973;
-        -webkit-transform: rotate(90deg);
-        transform: rotate(90deg);
-    }
-}
+}*/
 #above_the_title_top_right {
     float: left;
     color: red;
     font-weight: bold;
     cursor: pointer;
 }
-
-/*@keyframes rotation_logo_drive {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
-}*/
 @keyframes rotation_logo_drive {
     from {
-        transform: rotate(0deg);
+        transform: rotateY(0deg);
     }
 
     to {
-        transform: rotate(360deg);
+        transform: rotateY(360deg);
     }
 }
 .logo_drive,
 .logo_drive_rotation {
     position: fixed;
-    bottom: 0vw;
-    left: 0vw;
-    width="5em";
-    height="8em";
+    bottom: 0em;
+    left: 0em;
+}
+.logo_drive {
+    animation: 1s rotation_logo_drive ease-out +1;
 }
 .logo_drive_rotation {
-    /*    animation-name: rotation_logo_drive;
-    animation-duration: 10s;
-    animation-iteration-count: infinite;
-    animation-timing-function: linear;*/
-    /*-webkit-animation: rotation_logo_drive 5s linear infinite alternate;
-    -moz-animation: rotation_logo_drive 5s linear infinite alternate;
-    -ms-animation: rotation_logo_drive 5s linear infinite alternate;
-    -o-animation: rotation_logo_drive 5s linear infinite alternate;
-    animation: rotation_logo_drive 5s linear infinite alternate;*/
-    /* this comes last */
-
-    animation: 12s rotation_logo_drive linear infinite;
+    animation: 1.2s rotation_logo_drive ease infinite;
 }
 #div_autosave_in {
     font-size: 0.9em;
     font-weight: normal;
     text-align: right;
 }
+
+/* <spinner>*/
+.wrapper {
+    position: fixed;
+    bottom: 0em;
+    left: 0em;
+	margin: auto;
+	display: block;
+}
+
+.cssload-loader {
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    position: fixed;
+    left: 0;
+		width: 106px;
+		height: 106px;
+		border-radius: 50%;
+/*		margin: 6em;*/
+		display: inline-block;
+		vertical-align: middle;
+	background:rgb(47,59,162);
+}
+.cssload-loader,
+.cssload-loader:before,
+.cssload-loader:after {
+		animation: 1.45s infinite ease-in-out;
+		-o-animation: 1.45s infinite ease-in-out;
+		-ms-animation: 1.45s infinite ease-in-out;
+		-webkit-animation: 1.45s infinite ease-in-out;
+		-moz-animation: 1.45s infinite ease-in-out;
+}
+.cssload-loader:before,
+.cssload-loader:after {
+		width: 100%;
+		height: 100%;
+		border-radius: 50%;
+		position: absolute;
+		top: 0;
+		left: 0;
+}
+
+.cssload-loader { animation-name: cssload-loader;
+		-o-animation-name: cssload-loader;
+		-ms-animation-name: cssload-loader;
+		-webkit-animation-name: cssload-loader;
+		-moz-animation-name: cssload-loader; }
+
+
+@keyframes cssload-loader {
+		from { transform: scale(0); opacity: 1; }
+		to	 { transform: scale(1); opacity: 0; }
+}
+
+@-o-keyframes cssload-loader {
+		from { -o-transform: scale(0); opacity: 1; }
+		to	 { -o-transform: scale(1); opacity: 0; }
+}
+
+@-ms-keyframes cssload-loader {
+		from { -ms-transform: scale(0); opacity: 1; }
+		to	 { -ms-transform: scale(1); opacity: 0; }
+}
+
+@-webkit-keyframes cssload-loader {
+		from { -webkit-transform: scale(0); opacity: 1; }
+		to	 { -webkit-transform: scale(1); opacity: 0; }
+}
+
+@-moz-keyframes cssload-loader {
+		from { -moz-transform: scale(0); opacity: 1; }
+		to	 { -moz-transform: scale(1); opacity: 0; }
+}
+/* </spinner>*/

@@ -13,11 +13,12 @@
     <link rel="icon" type="image/png" href="favicon.png" />
     <link rel="icon" sizes="192x192" href="images/icons/icon-192x192.png">
     <link rel="manifest" href="/manifest.json">
-    <meta name="viewport" content="width=device-width">
+    <!--<meta name="viewport" content="width=device-width">-->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="msapplication-TileImage" content="images/icons/icon-144x144.png">
     <meta name="msapplication-TileColor" content="#2F3BA2">
-
+    <meta name="application-name" content="KeyMemo.next">
+    <meta name="theme-color" content="#2F3BA2">
 </head>
 
 <body class="center_align" onclick="timer_autosave_in.reset();">
@@ -157,14 +158,15 @@
             </div>
 
             <!--список секретов и управляющих элементов-->
+            <div id='secrets_and_control_element'>
+                <div class="lastChange_secret_title">
+                    Last change:
+                    <div id='last_change_list_secrets'>undefined</div>
+                </div>
+            </div>
             <div id="select_secrets_and_control_elements" hidden="">
-
                 <div id="secret_add">
                     <a hpref="#add_new_secret" id="add_new_secret" class="button_active" onclick="app.add_new_secret();">Add secret</a>
-                    <div class="lastChange_secret_title">
-                        Last change:
-                        <div id='last_change_list_secrets'>undefined</div>
-                    </div>
                 </div>
                 <!--  список секретов-->
                 <div id="view_secrets" class=" scrollbox  center_align">
@@ -178,11 +180,8 @@
 
             <!--спиннер-->
             <div id='spinner' class="div_full_screen_inner">
-                <div class="loader">
-                    <svg viewBox="0 0 32 32" width="32" height="32">
-                <circle id="spinner" cx="16" cy="16" r="14" fill="none">
-                </circle>
-            </svg>
+                <div class="wrapper">
+                    <div class="cssload-loader"></div>
                 </div>
             </div>
 

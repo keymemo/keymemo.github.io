@@ -34,22 +34,11 @@
 - есть импорт из файлов [keymemo.com](https://keymemo.com)
 - есть импорт из файлов [keymemo.github.io][caйт_keymemo.github.io]
 - весь код доступен [github.com/keymemo/keymemo.github.io][исходный_код_keymemo.github.io]
-- можно разместить на своём ресурсе.
+- можно разместить на своём ресурсе
 - резервная копия делается из настроек. Полученный файл содержит всё, что необходимо для доступа к паролям. Доступа к [drive.google.com][drive_google_com] браузер из локального файла не даст.
 
- Для размещения на своём ресурсе:
+ [Для размещения на своём ресурсе]("place_on_your_site.md").
 ====================================
-- необходим аккаунт Google
-- по [ссылке](https://console.developers.google.com/flows/enableapi?apiid=drive) создаем проект и автоматически включаем Drive API. Жмем Continue, затем Go to credentials
--  на странице Add cridentials to your page жмём кнопку Cancel
-- на странице выбираем вкладку OAuth consent screen.
-- выбираем нужный Email и вписываем Product name, жмем Save
-- на вкладе Credentials выбираем Create credentials, затем Oauth client ID
-- выбираем тип Other, вписываем звучное название и жмем Create
-???
-- необходимо изменить в scripts/settings.js параметр CLIENT_ID, [подробнее](https://developers.google.com/identity/protocols/OAuth2)
-- не забудьте включить соответствующие api для доступа к drive.google.com и домены, с которых можно запрашивать доступ с этим ID
-
 
 [caйт_keymemo.github.io]:https://keymemo.github.io/
 [исходный_код_keymemo.github.io]:https://github.com/keymemo/keymemo.github.io/
