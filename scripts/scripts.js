@@ -86,7 +86,12 @@ app.state0 = async function () {
             document.getElementById('spinner').innerHTML =
                 '<p class="warning_text"><br>' +
                 'You need to allow pop-ups <br>to access drive.google.com.<br><br>' +
-                'Reload the page.</p>';
+                'Reload the page.</p>'+
+
+            '<p><a href="https://github.com/keymemo/keymemo.github.io/blob/master/README.md" target="_blank" class="link_external" style="text-align: center; display: block;"><br>Read more...<br></a></p>';
+
+
+                ;
         }
     }
 }
