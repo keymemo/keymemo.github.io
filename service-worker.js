@@ -1,8 +1,9 @@
-var dataCacheName = 'keymemo-20170517';
+var dataCacheName = 'keymemo-20170527';
 var cacheName = 'keymemo-org-PWA--1';
 var filesToCache = [
   '/',
   '/index.html',
+  '/manifest.json',
   '/scripts/CryptoJS/cipher-core.js',
   '/scripts/CryptoJS/core.js',
   '/scripts/CryptoJS/evpkdf.js',
@@ -11,6 +12,7 @@ var filesToCache = [
   '/scripts/passwords.js',
   '/scripts/FileSaver.js',
   '/scripts/develop.js',
+  '/scripts/settings.js',
   '/images/logo-drive.png',
   '/images/icons/icon-128x128.png',
   '/images/icons/icon-144x144.png',
