@@ -86,12 +86,12 @@ app.state0 = async function () {
             document.getElementById('spinner').innerHTML =
                 '<p class="warning_text"><br>' +
                 'You need to allow pop-ups <br>to access drive.google.com.<br><br>' +
-                'Reload the page.</p>'+
+                'Reload the page.</p>' +
 
-            '<p><a href="https://github.com/keymemo/keymemo.github.io/blob/master/README.md" target="_blank" class="link_external" style="text-align: center; display: block;"><br>Read more...<br></a></p>';
+                '<p><a href="https://github.com/keymemo/keymemo.github.io/blob/master/README.md" target="_blank" class="link_external" style="text-align: center; display: block;"><br>Read more...<br></a></p>';
 
 
-                ;
+            ;
         }
     }
 }
@@ -1223,9 +1223,14 @@ app.edit_secret = function (source_div, link_on_secret) {
         element_copy.addEventListener('click',
             function () {
                 if (element_input.value !== '') {
+                    element_input.classList.remove('copied');
+                    // сохраняем значение
+                    let save_encrypted_value = element_input.value;
                     element_input.focus();
                     document.execCommand('copy');
                     element_input.blur();
+                    element_input.value = save_encrypted_value;
+                    element_input.classList.add('copied');
                 }
             });
         // потеря фокуса
