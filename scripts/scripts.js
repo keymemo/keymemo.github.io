@@ -54,6 +54,9 @@ app.set_last_change_list_secrets = function () {
         // ссылка на инструкцию
         app.last_change_list_secrets.innerHTML = app.last_change_list_secrets.innerHTML +
             '<p><a href="https://github.com/keymemo/keymemo.github.io/blob/master/place_on_your_site.md" target="_blank" class="link_external">Place on your site(self-hosted).</a></p>';
+        // ссылка на commits
+        app.last_change_list_secrets.innerHTML = app.last_change_list_secrets.innerHTML +
+            '<p><a href="https://github.com/keymemo/keymemo.github.io/commits/master" target="_blank" class="link_external">Recent changes (commits).</a></p>';
     }
 }
 // состояние 0 - старт программы
