@@ -11,8 +11,6 @@ var app = {
     need_save: false,
     // id папки на drive.google.com
     folder_id_drive_google_com: localStorage['folder_id_drive_google_com'],
-    // id файла последней версии
-    last_file_id_keymemo_com_on_drive_google_com: localStorage['last_file_id_keymemo_com_on_drive_google_com'],
     //
     welcome_phrase: localStorage['welcome_phrase'],
     // список секретов
@@ -47,7 +45,6 @@ app.set_last_change_list_secrets = function () {
     temp_div.innerHTML = JSON.parse(localStorage['list_secrets']);
     app.last_change_list_secrets.innerHTML = app.last_change_get(temp_div.children[0]);
 
-    temp_div.innerHTML = '';
     // если запускается на https://keymemo.github.io/
     // то предложить инструкцию по размещению на своих мощностях
     if ('keymemo.github.io' === window.location.hostname.toString()) {
@@ -820,7 +817,7 @@ async function select_folder_on_drive_google_com(callback) {
                                             // папка выбрана
                                             var doc = data[google.picker.Response.DOCUMENTS][0];
                                             app.folder_id_drive_google_com = doc.id;
-                                            await app.get_last_keymemo(doc.id,
+                                            await app.get_last_keymemo(
                                                 function (list_secrets) {
                                                     app.div_list_secrets.innerHTML = list_secrets.innerHTML;
                                                     copy_div_attributes(list_secrets, app.div_list_secrets);
@@ -1622,7 +1619,7 @@ app.load_div_list_secrets_from_localStorage = function () {
         let temp_div = document.getElementById('temp_div');
         temp_div.innerHTML = JSON.parse(localStorage['list_secrets']);
         app.div_list_secrets = temp_div.children[0];
-        temp_div.innerHTML = '';
+        //        temp_div.innerHTML = '';
     } else {
         app.div_list_secrets.innerHTML = '';
     }
@@ -1710,6 +1707,10 @@ app.sorting_secrets_abc = function () {
 
 
 
+app.fileTitle = function () {
+    return 'keymemo_' + app.data_now() + '.html';
+}
+
 /**
  * записываем страницу в файл
  */
@@ -1719,21 +1720,16 @@ app.exportHTML = async function () {
     app.spinner_show();
     // сохраняем как страницу
     function saveAsFile(html_page) {
-        let file_name = app.data_now();
-        //new Date();
+
         let blob = new Blob([html_page], {
             type: 'text/plain;charset=utf-8'
         });
-        saveAs(blob, 'keymemo_' + file_name + '.html');
+        saveAs(blob, app.fileTitle());
     }
 
     let html_page = await app.construct_HTML_page_for_export(true);
     saveAsFile('<!DOCTYPE html>' + '\n' + html_page.outerHTML);
     app.spinner_none();
-}
-
-app.fileTitle = function () {
-    return 'keymemo_' + app.data_now() + '.html';
 }
 
 
@@ -1759,12 +1755,11 @@ app.save_as_HTML_file_on_drive_google_com = async function (callback) {
 
 /**
  * возвращает самый новый файл из папки
- * @param {[[Type]]} FOLDER_ID [[Description]]
  * возвращает <div> с list_secrets
  */
-app.get_last_keymemo = async function (FOLDER_ID, callback_set_list_secrets_HTML) {
+app.get_last_keymemo = async function (callback_set_list_secrets_HTML) {
 
-    // разбираем загруежнный html файл
+    // разбираем загруженный html файл
     // на входе - содержимое файла
     // на выходе div с секретами
     get_list_secrets_from_html = async function (fileContents) {
@@ -1809,7 +1804,7 @@ app.get_last_keymemo = async function (FOLDER_ID, callback_set_list_secrets_HTML
                                         'orderBy': 'createdDate desc',
                                         'maxResults': 1
                                     });
-                                    // получаем дату последнего файла
+                                    // получаем дату самого нового файла
                                     await request.execute(async function (resp) {
                                         if (resp.items.length > 0) {
                                             let id = resp.items[0].id;
@@ -1829,7 +1824,6 @@ app.get_last_keymemo = async function (FOLDER_ID, callback_set_list_secrets_HTML
                                                     myXHR.onreadystatechange = async function (theProgressEvent) {
                                                         if (myXHR.readyState == 4) {
                                                             if (myXHR.status == 200) {
-                                                                app.last_file_id_keymemo_com_on_drive_google_com = id;
                                                                 var code = myXHR.response;
                                                                 // импортируем 'div_list_secrets'
                                                                 let import_div_list_secrets = await get_list_secrets_from_html(code);
@@ -1870,11 +1864,11 @@ app.logout = async function () {
     if (app.need_save) {
         app.remove_attr_notSaved(app.div_list_secrets);
 
-        // дата сохранения списка секретов
-        app.lastSave_list_secrets = JSON.stringify(new Date());
+        /*        // дата сохранения списка секретов
+                app.lastSave_list_secrets = JSON.stringify(new Date());
 
-        app.div_list_secrets.setAttribute('data-lastSave_list_secrets',
-            app.lastSave_list_secrets);
+                app.div_list_secrets.setAttribute('data-lastSave_list_secrets',
+                    app.lastSave_list_secrets);*/
 
         // ** локально сохраняем **
         app.save_to_localStorage();
@@ -1895,8 +1889,6 @@ app.save_to_localStorage = async function () {
     // ** локально сохраняем **
     // сохраняем в localStorage
     localStorage['folder_id_drive_google_com'] = app.folder_id_drive_google_com;
-    // id последней версии файла
-    localStorage['last_file_id_keymemo_com_on_drive_google_com'] = app.last_file_id_keymemo_com_on_drive_google_com;
     //    folder_on_drive_google_com: '',
     localStorage['welcome_phrase'] = app.welcome_phrase;
 
@@ -1907,7 +1899,6 @@ app.save_to_localStorage = async function () {
 // загрузка параметров из localStorage
 app.local_login = function (callback) {
     app.folder_id_drive_google_com = localStorage['folder_id_drive_google_com'];
-    app.last_file_id_keymemo_com_on_drive_google_com = localStorage['last_file_id_keymemo_com_on_drive_google_com'];
     app.welcome_phrase = localStorage['welcome_phrase'];
     // проверка drive.google.com на секреты новее
     app.load_div_list_secrets_from_localStorage();
@@ -1939,7 +1930,7 @@ app.check_where_newer_list_secret = async function () {
         app.logo_drive.classList = 'logo_drive_rotation';
         app.logo_drive.onclick = app.logout;
 
-        await app.get_last_keymemo(app.folder_id_drive_google_com,
+        await app.get_last_keymemo(
             function (gdrive_list_secret) {
                 // дата сохранения на goodle.drive.com
                 let data_saved_gdrive_list_secret = gdrive_list_secret.getAttribute('data-lastsave_list_secrets');
@@ -1989,7 +1980,6 @@ newInsertFile = async function (base64Data, metadata, callback) {
 
 
     // загружаем скрипт
-    //    if (typeof (gapi) !== "undefined" || typeof (gapi.auth.authorize) === 'function') {
     if (app.gapi_loads()) {
         checkAuth = async function () {
             //            request_state.start();
@@ -2015,7 +2005,6 @@ newInsertFile = async function (base64Data, metadata, callback) {
                                 });
                                 request.execute(
                                     function (file) {
-                                        app.last_file_id_keymemo_com_on_drive_google_com = file.id;
                                         if (callback) {
                                             callback();
                                             app.spinner_none();
