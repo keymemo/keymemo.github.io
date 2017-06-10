@@ -166,7 +166,7 @@
             </div>
             <div id="select_secrets_and_control_elements" hidden="">
                 <div id="secret_add">
-                    <a hpref="#add_new_secret" id="add_new_secret" class="button_active" onclick="app.add_new_secret();">Add secret</a>
+                    <a hpref="#add_new_secret" id="add_new_secret" class="button_active" onclick="app.edit_secret();">Add secret</a>
                 </div>
                 <!--  список секретов-->
                 <div id="view_secrets" class=" scrollbox  center_align">
@@ -186,8 +186,8 @@
             </div>
 
             <!--секреты-->
-            <div id="div_list_secrets" data-lastchange="2017-04-01_21:23:28(UTC)" hidden="" data-notsaved="true">
-                <div data-lastchange="2017-04-01_21:23:28(UTC)" data-notsaved="true">
+            <div id="div_list_secrets" data-lastchange="1970-00-00_00:00:00(UTC)" hidden="">
+                <div data-lastchange="1970-00-00_00:00:00(UTC)">
                     <div data-type="field" data-name="SecretName">U2FsdGVkX18eDsamlmX611z1DdmH0b5sONxGk1Rykeqld/6/xE0um++lYOL4gOF5FIOiKfnv8nVxkQFjLXAqrA==</div>
                     <div data-type="textarea" data-name="Что это?" data-removable="false" data-textareaheight="261px">U2FsdGVkX1/9hhddGpuds9IraEUvqGMM7dJpTIU2Wpvy+6EhCeZXyTz0W3fCFkdXoEjjb1aj4SqnQHFETv19qpHor4ouYYdACa2z5+vTn8HPFkSynFck8H1nDBtR0iUVWbpRmaqNMrUWl7yUE/8wr4Pf9LPCj2QMDIiz8p6wnvV7gSLhQcTQWUngJzBtQzyqYyTLmvoeaMgIG1ETElLp+dkIVKt3GpjZUOCqmMNIXyjzn9NCOBambe+fanEptJfhKa385aqEDQWnCGEOpBIWLBQ6tq2aUN5cdoMsalbnKDp/7/3f5Gk7LMMRiYzU6+LQp3R4xIWCbwRs+iD4GzgZDPwODpGqTsc4TOHRPdNBUOZpOHKIGf/4QskdjMFAqTos2gh/abVqKk4u9VxVf3ycgcb4DiSWSJXKGzcPXuzOd6OrtWFPebAV4yq6psY3lXb7booMd9EHwu1Yi31x7n+lEQ4MD4e7RPP9vQVimRKwcmclREu8En4X6chQSlnXdA6eF8Qzrk6S3ExAoXUgYUFE8Gjgx+RrxFdYhDCWRaSTwCkAKcgo71WmSr97llcZN6US7hOGDBBr3KQs6sJbOvpyrNfrY4muvY5myR5zuaoJeV0YdIu9xewvPngbSkw2DjA9DWIKzhbPOzxc6KGZMs9wJmKhWv+OWPd44o7HmfBG2Gj4ZzjFxg2s8pIyAvOz4dwQa2X2Zy6A9HcEIFIne4GTiH9CdHnGryFu1/WlTrrMWXIuEDMl/BPKaggvWV6GAbXKxAtnto3oVArJUtH6oCoYj5aDeod4JglF7/glzeeAfe0zqI9UNWA+TUjXfAL07J3VFpTR/FHmK8EvO7m1eUnaEx8e5uESkZVzaawNFVWuWi6Xr5tGkw/k0lZD6oeZR61SBGgLHCZB1qJYTn3wRw2H8xSuyC0t8LcVaAbNosbBjfTYteX/AWZxVJ33a1VUEzuqwpynS+UQ6shn+e8aY3Kc9vAZe70ujmE53VeY6ohbBhSZh2RN2Jjz8HPWFxFXpTTI43YqzsNF+u7PYxyDcMJPDCy/WbKpKTu+SrcXSxq8F1x5bSo7jiEDbKpPV7WzXaeCKJeK/4CUk4n17N9CYqo+tVZSQvQJHJmJVuYXm48X6qc=</div>
                     <div data-type="textarea" data-name="Возможности" data-removable="false" data-textareaheight="337px">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</div>
@@ -278,10 +278,10 @@
 
 
         <div id="etalonSecret" hidden="">
-            <div data-type="title" data-name="SecretName">U2FsdGVkX1/HqQOOKs+viswilCmCCUApKKRP44UIj+o=</div>
+            <div data-type="title" data-name="SecretName"></div>
             <div data-type="field" data-name="Login"></div>
             <div data-type="password" data-name="Password"></div>
-            <div data-type="field" data-name="Tags"></div>
+            <div data-type="field" data-name="Tags" data-removable="true"></div>
             <div data-type="link" data-name="Link" data-removable="true" data-href="#del_Name text"></div>
             <div data-type="textarea" data-name="Notes" data-removable="true"></div>
         </div>

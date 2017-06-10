@@ -38,12 +38,19 @@ var app = {
     import_from_keymemo_com_button: document.getElementById('import_from_keymemo_com_button'),
 };
 
+// возвращает дату изменения списка секретов
+app.get_data_change_list_secret = function () {
+    return app.div_list_secrets.getAttribute('data-lastchange');
+}
+
+// имя файла для сохранения
+app.file_name_for_save = function () {
+    return 'keymemo_' + app.get_data_change_list_secret() + '.html'
+}
+
 // вывод даты изменения списка секретов
 app.set_last_change_list_secrets = function () {
-    // дата последнего изменения списка секретов
-    let temp_div = document.getElementById('temp_div');
-    temp_div.innerHTML = JSON.parse(localStorage['list_secrets']);
-    app.last_change_list_secrets.innerHTML = app.last_change_get(temp_div.children[0]);
+    app.last_change_list_secrets.innerHTML = app.get_data_change_list_secret();
 
     // если запускается на https://keymemo.github.io/
     // то предложить инструкцию по размещению на своих мощностях
@@ -56,44 +63,49 @@ app.set_last_change_list_secrets = function () {
             '<p><a href="https://github.com/keymemo/keymemo.github.io/commits/master" target="_blank" class="link_external">Recent changes (commits).</a></p>';
     }
 }
+
+// если запуск с локального диска - возвращем true
+app.start_from_local_disk = function () {
+    if ('file:' === window.location.protocol.toString()) {
+        return true;
+    } else {
+        return false;
+    }
+}
 // состояние 0 - старт программы
 app.state0 = async function () {
     'use strict';
     title_state.state0();
-    /*   // выключаем спинер через 30 сек.
-       setTimeout(
-           function () {
-               app.spinner_none();
-           }, 30000
-       )*/
-    // если определена папка для хранения секретов на drive.google.com - авторизуемся на гугле
-    if (localStorage['list_secrets']) {
-        online_offline.innerHTML = 'offline';
-        app.set_last_change_list_secrets();
+
+
+    // если запуск с локального диска
+    if (app.start_from_local_disk()) {
         app.local_login(app.state1);
-    } else {
-        online_offline.innerHTML = 'online';
-        // проверка разрешены ли всплывающие окна для авторизации google
-        var newwindow = window.open(
-            "https://accounts.google.com/o/oauth2/auth",
-            "popupcheck",
-            "width=100, heihgt=100,directories=no.menubar=no,toolbar=no");
-        if (newwindow) {
-            // popups разрешены
-            newwindow.close();
-            await select_folder_on_drive_google_com(app.state1);
+    } else
+        // если определена папка для хранения секретов на drive.google.com - авторизуемся на гугле
+        if (localStorage['list_secrets']) {
+            app.online_offline.innerHTML = 'offline';
+            app.local_login(app.state1);
         } else {
-            document.getElementById('spinner').innerHTML =
-                '<p class="warning_text"><br>' +
-                'You need to allow pop-ups <br>to access drive.google.com.<br><br>' +
-                'Reload the page.</p>' +
+            app.online_offline.innerHTML = 'online';
+            // проверка разрешены ли всплывающие окна для авторизации google
+            var newwindow = window.open(
+                "https://accounts.google.com/o/oauth2/auth",
+                "popupcheck",
+                "width=100, heihgt=100,directories=no.menubar=no,toolbar=no");
+            if (newwindow) {
+                // popups разрешены
+                newwindow.close();
+                await select_folder_on_drive_google_com(app.state1);
+            } else {
+                document.getElementById('spinner').innerHTML =
+                    '<p class="warning_text"><br>' +
+                    'You need to allow pop-ups <br>to access drive.google.com.<br><br>' +
+                    'Reload the page.</p>' +
 
-                '<p><a href="https://github.com/keymemo/keymemo.github.io/blob/master/README.md" target="_blank" class="link_external" style="text-align: center; display: block;"><br>Read more...<br></a></p>';
-
-
-            ;
+                    '<p><a href="https://github.com/keymemo/keymemo.github.io/blob/master/README.md" target="_blank" class="link_external" style="text-align: center; display: block;"><br>Read more...<br></a></p>';
+            }
         }
-    }
 }
 
 // состояние 1
@@ -164,7 +176,7 @@ app.encrypt = function (value, passPhrase) {
 
 
 /**
- * вернуть div из дочерних у которого заданный атрибут "data-*" равен value
+ * вернуть div из дочерних у которого заданный атрибут "data-*" равен value, или первый если value не задан
  * @param   {<div>}   div       - <div> в котором ищем потомков
  * @param   {[[Type]]} data_attr - bvz атрибут вида "data-*"
  * @param   {[[Type]]} value     - значение атрибута
@@ -172,6 +184,12 @@ app.encrypt = function (value, passPhrase) {
  */
 function get_child_div(div, data_attr, value) {
     'use strict';
+    // если значение атрибута не задано - возвращаем первый
+    if (undefined === value) {
+        //        return div.children[0].getAttribute(data_attr);
+        return div.children[0];
+    }
+
     let children = div.children;
     let i = 0;
     for (i = 0; i < children.length; i++) {
@@ -182,7 +200,8 @@ function get_child_div(div, data_attr, value) {
             }
         }
     }
-    return 'not defined';
+    //    return 'not defined';
+    return app.encrypt('not defined');
 }
 
 
@@ -741,39 +760,6 @@ function pb(value) {
 }
 
 
-
-/**
- * Загрузка скрипта JS по требованию
- * @param {[[Type]]} src      Ссылка на скрипт
- * @param {[[Type]]} callback [[Description]]
- * @param {[[Type]]} appendTo [[Description]]
- */
-/*
-loadScript = async function (src, callback, appendTo) {
-    let script = document.createElement('script');
-
-    if (!appendTo) {
-        appendTo = document.getElementsByTagName('head')[0];
-    }
-
-    if (script.readyState && !script.onload) {
-        // IE, Opera
-        script.onreadystatechange = function () {
-            if (script.readyState === 'loaded' || script.readyState === 'complete') {
-                script.onreadystatechange = null;
-                callback();
-            }
-        };
-    } else {
-        // Rest
-        script.onload = callback;
-    }
-
-    script.src = src;
-    appendTo.appendChild(script);
-};
-*/
-
 // http://stackoverflow.com/questions/23223718/failed-to-execute-btoa-on-window-the-string-to-be-encoded-contains-characte
 //кодирование base64 в т.ч. с учетом не latin-1 симоволов
 String.prototype.b64encode = function () {
@@ -869,14 +855,18 @@ app.construct_HTML_page_for_export = async function (include_all) {
         //
         let documentElement = document.createDocumentFragment();
         documentElement = document.cloneNode(true);
+        // скачиваем оригинальный
         documentElement.documentElement.innerHTML = await fetchAsync('');
 
         let list_secret = documentElement.getElementById('div_list_secrets');
+        // заменяем список секретов на актуальный
         list_secret.innerHTML = app.div_list_secrets.innerHTML;
-        // копируем атрибуты
-        copy_div_attributes(app.div_list_secrets, list_secret);
 
-        let head = documentElement.getElementsByTagName('head')[0];
+        // удаляем атрибуты из всех элементов
+        app.remove_attr_notSaved(list_secret);
+
+        // копируем атрибуты списка
+        copy_div_attributes(app.div_list_secrets, list_secret);
 
         if (include_all) {
             //заменяем ссылки на скрипты на сами скрипты
@@ -890,12 +880,13 @@ app.construct_HTML_page_for_export = async function (include_all) {
                 }
             }
 
+            let head = documentElement.getElementsByTagName('head')[0];
             // заменяем ссылку на css на содержание
             let links_on_css = documentElement.getElementsByTagName('link');
             //        i = link_on_css.length;
             for (i = 0; i < links_on_css.length; i++) {
                 let link = links_on_css[i];
-                if (link.href && link.href !== '') {
+                if (link.href && link.href !== '' && link.type === 'text/css') {
                     let css = document.createElement('style');
                     css.type = 'text/css'
                     css.innerHTML = await fetchAsync(link.href);
@@ -943,13 +934,13 @@ app.recreate_view_secrets = function () {
         let a = document.createElement('a');
 
         wrap_field.appendChild(a);
-        a.innerHTML = app.decrypt(get_child_div(div_source_secret, 'data-name', 'SecretName').innerHTML);
+        //        a.innerHTML = app.decrypt(get_child_div(div_source_secret, 'data-name', 'SecretName').innerHTML);
+        a.innerHTML = app.decrypt(get_child_div(div_source_secret, 'data-name').innerHTML);
         a.className = 'link_on_secret';
 
         // обрабочик click
         a.addEventListener('click',
             function () {
-                //div_hide(select_secrets_and_control_elements);
                 // редактируем секрет полностью
                 app.edit_secret(div_source_secret, this);
             });
@@ -1016,6 +1007,11 @@ app.recreate_view_secrets = function () {
     // дата последнего изменения списка секретов
     app.last_change_list_secrets.innerHTML = app.last_change_get(app.div_list_secrets);
 
+    //
+    if (app.need_save) {
+        app.online_offline.innerHTML = 'Need SAVE!!!';
+    }
+
     app.clear_view_secrets();
     app.div_view_secrets.appendChild(fragment);
 };
@@ -1063,13 +1059,25 @@ app.data_now = function () {
 app.edit_secret = function (source_div, link_on_secret) {
     'use strict';
 
+    // если запуск с диска - ничего не делать
+    if (app.start_from_local_disk() && undefined === source_div) {
+        return;
+    }
+
     let i = 0;
     link_on_secret = link_on_secret || undefined;
     app.div_edited_secret.style.display = 'block';
     app.div_edited_secret.classList.remove('hidden_secret');
 
-    // клон для не сохраненных результатов
-    let intermediate_div = source_div.cloneNode(true);
+    // клон для редактирования
+    // если без источника - создаем секрет
+    if (undefined === source_div) {
+        // новый секрет из эталонного
+        var intermediate_div = get_div_byId('etalonSecret').cloneNode(true);
+        intermediate_div.removeAttribute('id');
+    } else {
+        intermediate_div = source_div.cloneNode(true);
+    }
 
     // формирует вид записи
     // на входе - div записи-источника
@@ -1371,7 +1379,9 @@ app.edit_secret = function (source_div, link_on_secret) {
                 div_show_id('div_form_add_field');
                 document.getElementById('add_field_name').focus();
             });
-        app.div_edited_secret.appendChild(add);
+        if (!app.start_from_local_disk()) {
+            app.div_edited_secret.appendChild(add);
+        }
 
         //дата изменения
         let lastChange_secrets = document.createElement('div');
@@ -1422,7 +1432,9 @@ app.edit_secret = function (source_div, link_on_secret) {
                 //                this.remove();
 
             });
-        app.div_edited_secret.appendChild(remove);
+        if (!app.start_from_local_disk()) {
+            app.div_edited_secret.appendChild(remove);
+        }
 
         //сохранить секрет
         save.innerHTML = 'Save';
@@ -1466,8 +1478,9 @@ app.edit_secret = function (source_div, link_on_secret) {
                     document.getElementById('SecretName').focus();
                 }
             });
-        app.div_edited_secret.appendChild(save);
-
+        if (!app.start_from_local_disk()) {
+            app.div_edited_secret.appendChild(save);
+        }
         // не сохранять секрет
         cancel.innerHTML = 'Cancel';
         cancel.className = 'button_active';
@@ -1477,8 +1490,8 @@ app.edit_secret = function (source_div, link_on_secret) {
                 // удаляем промежуточный
                 app.div_edited_secret.innerHTML = '';
                 app.div_edited_secret.style.display = 'none';
+                intermediate_div.innerHTML = '';
                 intermediate_div.remove();
-                div_show_id('select_secrets_and_control_elements');
             });
         app.div_edited_secret.appendChild(cancel);
     }
@@ -1539,7 +1552,6 @@ app.search_header_input = function () {
             }
         }
 
-
     }
     // поиск с задержкой
     fnDelay(function () {
@@ -1574,23 +1586,6 @@ app.last_change_set = function (div) {
 app.last_change_get = function (div) {
     'use strict';
     return div.getAttribute('data-lastChange') || ' not defined';
-};
-
-
-/**
- * Добавление секрета. Секрет копируется из "эталонного" секрета
- */
-app.add_new_secret = function () {
-    'use strict';
-
-    // новый секрет из эталонного
-    // добавляем в конец
-    // показываем
-    let new_secret = get_div_byId('div_list_secrets')
-        .appendChild(get_div_byId('etalonSecret')
-            .cloneNode(true));
-    new_secret.removeAttribute('id');
-    app.edit_secret(new_secret);
 };
 
 
@@ -1706,11 +1701,6 @@ app.sorting_secrets_abc = function () {
 };
 
 
-
-app.fileTitle = function () {
-    return 'keymemo_' + app.data_now() + '.html';
-}
-
 /**
  * записываем страницу в файл
  */
@@ -1724,7 +1714,7 @@ app.exportHTML = async function () {
         let blob = new Blob([html_page], {
             type: 'text/plain;charset=utf-8'
         });
-        saveAs(blob, app.fileTitle());
+        saveAs(blob, app.file_name_for_save());
     }
 
     let html_page = await app.construct_HTML_page_for_export(true);
@@ -1739,7 +1729,7 @@ app.save_as_HTML_file_on_drive_google_com = async function (callback) {
     app.unregister_service_worker();
 
     var metadata = {
-        'title': app.fileTitle(),
+        'title': app.file_name_for_save(),
         'mimeType': "text/html",
         'parents': [{
             'id': app.folder_id_drive_google_com
@@ -1855,21 +1845,13 @@ app.get_last_keymemo = async function (callback_set_list_secrets_HTML) {
     } else {
 
     }
-
-
 }
+
 // сохранение параметров в localStorage
 app.logout = async function () {
     //
-    if (app.need_save) {
+    if (!app.start_from_local_disk() && app.need_save) {
         app.remove_attr_notSaved(app.div_list_secrets);
-
-        /*        // дата сохранения списка секретов
-                app.lastSave_list_secrets = JSON.stringify(new Date());
-
-                app.div_list_secrets.setAttribute('data-lastSave_list_secrets',
-                    app.lastSave_list_secrets);*/
-
         // ** локально сохраняем **
         app.save_to_localStorage();
         // сохраняем на gdrive
@@ -1885,7 +1867,6 @@ app.logout = async function () {
 
 // сохраняем в localStorage
 app.save_to_localStorage = async function () {
-
     // ** локально сохраняем **
     // сохраняем в localStorage
     localStorage['folder_id_drive_google_com'] = app.folder_id_drive_google_com;
@@ -1896,20 +1877,27 @@ app.save_to_localStorage = async function () {
     app.save_div_list_secrets_to_localStorage();
 }
 
-// загрузка параметров из localStorage
+// загрузка параметров
 app.local_login = function (callback) {
-    app.folder_id_drive_google_com = localStorage['folder_id_drive_google_com'];
-    app.welcome_phrase = localStorage['welcome_phrase'];
-    // проверка drive.google.com на секреты новее
-    app.load_div_list_secrets_from_localStorage();
-    app.spinner_none();
-    if (callback) {
-        callback();
+    if (!app.start_from_local_disk()) {
+        app.folder_id_drive_google_com = localStorage['folder_id_drive_google_com'];
+        app.welcome_phrase = localStorage['welcome_phrase'];
+        // проверка drive.google.com на секреты новее
+        app.load_div_list_secrets_from_localStorage();
+        app.spinner_none();
+        if (callback) {
+            callback();
+        }
+        // проверка где новее секрет
+        setTimeout(
+            app.check_where_newer_list_secret,
+            1);
+    } else {
+        app.spinner_none();
+        if (callback) {
+            callback();
+        }
     }
-    // проверка где новее секрет
-    setTimeout(
-        app.check_where_newer_list_secret,
-        1);
 }
 
 // сброс состояния notSaved
@@ -1956,7 +1944,7 @@ app.check_where_newer_list_secret = async function () {
 }
 
 /**
- * загрузка нового файла
+ * загрузка нового файла на drive.google.com
  *
  * @param {Image} Base 64 image data
  * @param {Metadata} Image metadata
@@ -1982,7 +1970,6 @@ newInsertFile = async function (base64Data, metadata, callback) {
     // загружаем скрипт
     if (app.gapi_loads()) {
         checkAuth = async function () {
-            //            request_state.start();
             window.setTimeout(
                 function () {
                     gapi.auth.authorize({
@@ -2007,13 +1994,13 @@ newInsertFile = async function (base64Data, metadata, callback) {
                                     function (file) {
                                         if (callback) {
                                             callback();
-                                            app.spinner_none();
                                         }
+                                        app.spinner_none();
                                     }
                                 );
                             }
                         });
-                }, 0);
+                }, 1);
         }
         await checkAuth();
     } else {
@@ -2040,7 +2027,7 @@ app.spinner_none = function () {
 
 //проверка загруженности скрипта gapi
 app.gapi_loads = function () {
-    if (typeof (gapi) !== "undefined" || typeof (gapi.auth.authorize) === 'function') {
+    if (typeof (gapi) !== "undefined" && typeof (gapi.auth.authorize) === 'function') {
         return true;
     } else {
         return false;

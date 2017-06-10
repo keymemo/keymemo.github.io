@@ -1061,7 +1061,6 @@ hr {
     writing-mode: tb-rl;
     transform: rotate(+270deg);
     direction: rtl;
-    /* not specified as part of writing-mode property in standard syntax */
 }
 .autosave_in_alarm {
     -webkit-transition: all 1.5s ease;
@@ -1069,7 +1068,6 @@ hr {
     writing-mode: tb-rl;
     transform: rotate(-90deg);
     direction: rtl;
-    /* not specified as part of writing-mode property in standard syntax */
 }
 .loader {
     left: 50%;
@@ -1078,15 +1076,7 @@ hr {
     -webkit-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
 }
-/*.loader #spinner {
-    box-sizing: border-box;
-    stroke: #673AB7;
-    stroke-width: 3px;
-    -webkit-transform-origin: 50%;
-    transform-origin: 50%;
-    -webkit-animation: line 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite, rotate 1.6s linear infinite;
-    animation: line 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite, rotate 1.6s linear infinite;
-}*/
+
 #above_the_title_top_right {
     float: left;
     color: red;
@@ -1109,10 +1099,11 @@ hr {
     left: 0em;
 }
 .logo_drive {
-    animation: 1s rotation_logo_drive ease-out +1;
+    animation: 2s rotation_logo_drive ease-out +1;
 }
 .logo_drive_rotation {
-    animation: 1.2s rotation_logo_drive ease infinite;
+    animation: 2s rotation_logo_drive ease +10;
+    transform: scale(1, 0);
 }
 #div_autosave_in {
     font-size: 0.9em;

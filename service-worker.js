@@ -1,7 +1,6 @@
-var dataCacheName = 'keymemo-20170610';
+var dataCacheName = 'keymemo-20170611';
 var cacheName = 'keymemo-org-PWA--1';
 var filesToCache = [
-  '/',
   '/index.html',
   '/manifest.json',
   '/scripts/CryptoJS/cipher-core.js',
