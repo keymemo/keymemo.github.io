@@ -1921,9 +1921,9 @@ app.check_where_newer_list_secret = async function () {
         await app.get_last_keymemo(
             function (gdrive_list_secret) {
                 // дата сохранения на goodle.drive.com
-                let data_saved_gdrive_list_secret = gdrive_list_secret.getAttribute('data-lastsave_list_secrets');
+                let data_saved_gdrive_list_secret = gdrive_list_secret.getAttribute('data-lastchange');
                 // дата сохранения локально
-                let data_saved_localStorage = app.div_list_secrets.getAttribute('data-lastsave_list_secrets');
+                let data_saved_localStorage = app.div_list_secrets.getAttribute('data-lastchange');
 
                 app.logo_drive.classList = 'logo_drive';
                 if (data_saved_gdrive_list_secret > data_saved_localStorage) {
