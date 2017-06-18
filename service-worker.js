@@ -1,4 +1,4 @@
-var dataCacheName = 'keymemo-20170611';
+var dataCacheName = 'keymemo-20170619';
 var cacheName = 'keymemo-org-PWA--1';
 var filesToCache = [
   '/index.html',

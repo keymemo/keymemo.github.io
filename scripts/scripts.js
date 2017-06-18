@@ -48,9 +48,15 @@ app.file_name_for_save = function () {
     return 'keymemo_' + app.get_data_change_list_secret() + '.html'
 }
 
+// возвращает в виде строки и даты разницу между текущим временем и переданным
+app.data_change_diff_now = function (date) {
+    return (app.data_difference(date) +
+        '<br><span class="lastChange_secret_title">' + date + '</span>');
+}
+
 // вывод даты изменения списка секретов
 app.set_last_change_list_secrets = function () {
-    app.last_change_list_secrets.innerHTML = app.get_data_change_list_secret();
+    app.last_change_list_secrets.innerHTML = app.data_change_diff_now(app.get_data_change_list_secret());
 
     // если запускается на https://keymemo.github.io/
     // то предложить инструкцию по размещению на своих мощностях
@@ -1005,8 +1011,7 @@ app.recreate_view_secrets = function () {
     }
 
     // дата последнего изменения списка секретов
-    app.last_change_list_secrets.innerHTML = app.last_change_get(app.div_list_secrets);
-
+    app.last_change_list_secrets.innerHTML = app.data_change_diff_now(app.get_data_change_list_secret());
     //
     if (app.need_save) {
         app.online_offline.innerHTML = 'Need SAVE!!!';
@@ -1045,10 +1050,87 @@ app.data_now = function () {
         curSeconds = '0' + curSeconds;
     }
 
-    // в формате "YYYY-MM-DD_HH:MM:SS"
+    // в формате "YYYY-MM-DD_HH:MM:SS(UTC)"
     let date_now = curYear + '-' + curMonth + '-' + curDay + '_' + curHour + ':' + curMinute + ':' + curSeconds + '(UTC)';
     return date_now;
 };
+
+// возвращает текстом разницу между текущим временем и переданным.
+app.data_difference = function (data) {
+
+    // формируем время в формате "YYYY-MM-DD_HH:MM:SS(UTC)" из полученного
+    let Year = data.substr(0, 4);
+    let Month = data.substr(5, 2);
+    let Day = data.substr(8, 2);
+    let Hour = data.substr(11, 2);
+    let Minute = data.substr(14, 2);
+    let Seconds = data.substr(17, 2);
+
+    let currentTimeZoneOffsetInHours = new Date().getTimezoneOffset() / 60;
+    let data_in_format = new Date(Year, Month - 1, Day, Hour - currentTimeZoneOffsetInHours, Minute, Seconds);
+
+    let data_diff = (Date.now() - data_in_format.getTime()) / 1000;
+
+    // более года 60*60*24*365
+    if (data_diff > 31536000) {
+        return "Over a year ago"
+    }
+
+    // более полугода 60*60*24*183
+    if (data_diff > 15811200) {
+        return "More than half a year ago"
+    }
+
+    // более месяца 60*60*24*30
+    if (data_diff > 2592000) {
+        return (parseInt(data_diff / 2592000) + " months ago");
+    }
+
+    // более двух недель 60*60*24*14
+    if (data_diff > 1209600) {
+        return "Over 2 weeks"
+    }
+
+    // более недели 60*60*24*7
+    if (data_diff > 604800) {
+        return "More than 1 week"
+    }
+
+    // 2 дня назад 60*60*24*2
+    if (data_diff > 172800) {
+        return (parseInt(data_diff / 86400) + " days ago");
+        172800
+    }
+
+    // 1 день назад 60*60*24*1
+    if (data_diff > 86400) {
+        return "Yesterday"
+    }
+
+    // 1 час назад 60*60
+    if (data_diff > 3600) {
+        return (parseInt(data_diff / 3600) + " hours ago");
+    }
+
+    // полчаса назад 60*30
+    if (data_diff > 1800) {
+        return "Half an hour ago"
+    }
+
+    // несколько минут назад 60*2
+    if (data_diff > 180) {
+        return (parseInt(data_diff / 60) + " minutes ago");
+    }
+
+    // несколько минут назад 60
+    if (data_diff > 60) {
+        return (parseInt(data_diff / 60) + " minute ago");
+    }
+
+    // несколько секунд назад
+    return (parseInt(data_diff) + " seconds ago");
+
+}
 
 /**
  * Выводит выбранный секрет для редактирования
@@ -1391,7 +1473,8 @@ app.edit_secret = function (source_div, link_on_secret) {
         lastChange_secret_title.classList = "lastChange_secret_title";
         lastChange_secret_title.innerHTML = 'Last change:<br>';
         lastChange_secret_title.appendChild(lastChange_secrets);
-        lastChange_secrets.innerHTML = app.last_change_get(intermediate_div);
+        lastChange_secrets.innerHTML = app.data_change_diff_now(app.last_change_get(intermediate_div));
+
         app.div_edited_secret.appendChild(lastChange_secret_title);
 
         // добавляем секрет по записям
@@ -1492,6 +1575,8 @@ app.edit_secret = function (source_div, link_on_secret) {
                 app.div_edited_secret.style.display = 'none';
                 intermediate_div.innerHTML = '';
                 intermediate_div.remove();
+                // обновить дату последнего изменения списка секретов
+                app.last_change_list_secrets.innerHTML = app.data_change_diff_now(app.get_data_change_list_secret());
             });
         app.div_edited_secret.appendChild(cancel);
     }

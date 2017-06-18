@@ -76,6 +76,8 @@ function timer_autosave(value) {
     return {
         // тики таймера
         tick: function () {
+            // обновить дату последнего изменения списка секретов
+            app.last_change_list_secrets.innerHTML = app.data_change_diff_now(app.get_data_change_list_secret());
             time_logout--;
 
             if (time_logout % 2) {
@@ -110,6 +112,8 @@ function timer_autosave(value) {
         },
         // автоматическое сохранение
         exit: async function () {
+            // обновить дату последнего изменения списка секретов
+            app.last_change_list_secrets.innerHTML = app.get_data_change_list_secret();
             autosave_in.innerHTML = 'now';
             await app.logout();
         },
