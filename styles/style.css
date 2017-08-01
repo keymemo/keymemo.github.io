@@ -83,7 +83,6 @@
     border: 2px solid #d6e9c6;
     width: 100%;
     resize: vertical;
-    min-height: 20px;
 }
 
 .input_focus_on:textarea,
@@ -99,7 +98,7 @@
 .textarea_edited_secret {
     display: inline-block;
     border: solid 1px #000;
-    min-height: 100px;
+    min-height: 2em;
     resize: vertical;
     width: 94%;
     margin-left: auto;
@@ -108,6 +107,7 @@
 
 
 /*мигани при копировании*/
+
 .copied {
     -webkit-animation-name: blinker;
     -webkit-animation-duration: 0.2s;
@@ -120,26 +120,46 @@
     animation-name: blinker;
     animation-duration: 0.2s;
     animation-timing-function: linear;
-    animation-iteration-count: 1; color: red;
+    animation-iteration-count: 1;
+    color: red;
 }
 
 @-moz-keyframes blinker {
-    0% { opacity: 1.0; }
-    50% { opacity: 0.3; }
-    100% { opacity: 1.0; }
+    0% {
+        opacity: 1.0;
+    }
+    50% {
+        opacity: 0.3;
+    }
+    100% {
+        opacity: 1.0;
+    }
 }
 
 @-webkit-keyframes blinker {
-    0% { opacity: 1.0; }
-    50% { opacity: 0.3; }
-    100% { opacity: 1.0; }
+    0% {
+        opacity: 1.0;
+    }
+    50% {
+        opacity: 0.3;
+    }
+    100% {
+        opacity: 1.0;
+    }
 }
 
 @keyframes blinker {
-    0% { opacity: 1.0; }
-    50% { opacity: 0.3; }
-    100% { opacity: 1.0; }
+    0% {
+        opacity: 1.0;
+    }
+    50% {
+        opacity: 0.3;
+    }
+    100% {
+        opacity: 1.0;
+    }
 }
+
 
 /*текст элементов управления*/
 
@@ -191,6 +211,7 @@
     -ms-transition: color .001s ease, background .1s ease;
     transition: color .001s ease, background .1s ease;
 }
+
 .buton_copy_active:active,
 .buton_copy_not_active:active,
 .button_not_active:active,
@@ -245,7 +266,8 @@
 }
 
 .link_on_secret,
-.link_on_secret_hover {
+.link_on_secret_hover,
+.hideBlock {
     font-size: 190%;
     font-family: monospace ! important;
     font-weight: bold;
@@ -253,14 +275,20 @@
     box-shadow: 0 0 15px #A9A9A9;
     /* Размер и цвет тени блока*/
     margin-top: .5em;
-    margin-bottom: .5em;
     border: 1px solid #888;
+    margin-left: auto;
+    margin-right: auto;
+    /*
     -moz-transition: background-color 0.1s 0.1s ease;
     -o-transition: background-color 0.1s 0.1s ease;
     -webkit-transition: background-color 0.1s 0.1s ease;
+*/
     border-radius: 8px;
     display: table;
-    width: 100%;
+    width: 95%;
+    padding: 0px;
+    overflow: visible;
+    transition: all .3s ease-in-out;
 }
 
 .link_on_secret:hover {
@@ -284,7 +312,8 @@ body {
     color: blue;
     text-align: center;
     cursor: pointer;
-    margin: 10px 10px 10px 10px;
+    /*    margin: 10px 10px 10px 10px;*/
+    margin: 0px;
 }
 
 .secret_not_saved {
@@ -327,6 +356,7 @@ body {
 .input_focus_on {
     background-color: white!important;
     color: black!important;
+    overflow-y: visible;
 }
 
 .input_focus_off {
@@ -334,6 +364,7 @@ body {
     color: grey !important;
     font-weight: 300;
     font-size: 100%;
+    overflow: hidden;
 }
 
 #save_secret,
@@ -1063,11 +1094,11 @@ hr {
     direction: rtl;
 }
 .autosave_in_alarm {
-    -webkit-transition: all 1.5s ease;
-    -webkit-transition-delay: 0.5s;
     writing-mode: tb-rl;
     transform: rotate(-90deg);
     direction: rtl;
+    -webkit-transition: all 1.5s ease;
+    -webkit-transition-delay: 0.5s;
 }
 .loader {
     left: 50%;
@@ -1076,7 +1107,6 @@ hr {
     -webkit-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
 }
-
 #above_the_title_top_right {
     float: left;
     color: red;
@@ -1116,10 +1146,9 @@ hr {
     position: fixed;
     bottom: 0em;
     left: 0em;
-	margin: auto;
-	display: block;
+    margin: auto;
+    display: block;
 }
-
 .cssload-loader {
     margin: auto;
     top: 0;
@@ -1127,62 +1156,101 @@ hr {
     right: 0;
     position: fixed;
     left: 0;
-		width: 106px;
-		height: 106px;
-		border-radius: 50%;
-/*		margin: 6em;*/
-		display: inline-block;
-		vertical-align: middle;
-	background:rgb(47,59,162);
+    width: 106px;
+    height: 106px;
+    border-radius: 50%;
+    /*		margin: 6em;*/
+
+    display: inline-block;
+    vertical-align: middle;
+    background: rgb(47, 59, 162);
 }
 .cssload-loader,
 .cssload-loader:before,
 .cssload-loader:after {
-		animation: 1.45s infinite ease-in-out;
-		-o-animation: 1.45s infinite ease-in-out;
-		-ms-animation: 1.45s infinite ease-in-out;
-		-webkit-animation: 1.45s infinite ease-in-out;
-		-moz-animation: 1.45s infinite ease-in-out;
+    animation: 1.45s infinite ease-in-out;
+    -o-animation: 1.45s infinite ease-in-out;
+    -ms-animation: 1.45s infinite ease-in-out;
+    -webkit-animation: 1.45s infinite ease-in-out;
+    -moz-animation: 1.45s infinite ease-in-out;
 }
 .cssload-loader:before,
 .cssload-loader:after {
-		width: 100%;
-		height: 100%;
-		border-radius: 50%;
-		position: absolute;
-		top: 0;
-		left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    position: absolute;
+    top: 0;
+    left: 0;
 }
-
-.cssload-loader { animation-name: cssload-loader;
-		-o-animation-name: cssload-loader;
-		-ms-animation-name: cssload-loader;
-		-webkit-animation-name: cssload-loader;
-		-moz-animation-name: cssload-loader; }
-
-
+.cssload-loader {
+    animation-name: cssload-loader;
+    -o-animation-name: cssload-loader;
+    -ms-animation-name: cssload-loader;
+    -webkit-animation-name: cssload-loader;
+    -moz-animation-name: cssload-loader;
+}
 @keyframes cssload-loader {
-		from { transform: scale(0); opacity: 1; }
-		to	 { transform: scale(1); opacity: 0; }
-}
+    from {
+        transform: scale(0);
+        opacity: 1;
+    }
 
+    to {
+        transform: scale(1);
+        opacity: 0;
+    }
+}
 @-o-keyframes cssload-loader {
-		from { -o-transform: scale(0); opacity: 1; }
-		to	 { -o-transform: scale(1); opacity: 0; }
-}
+    from {
+        -o-transform: scale(0);
+        opacity: 1;
+    }
 
+    to {
+        -o-transform: scale(1);
+        opacity: 0;
+    }
+}
 @-ms-keyframes cssload-loader {
-		from { -ms-transform: scale(0); opacity: 1; }
-		to	 { -ms-transform: scale(1); opacity: 0; }
-}
+    from {
+        -ms-transform: scale(0);
+        opacity: 1;
+    }
 
+    to {
+        -ms-transform: scale(1);
+        opacity: 0;
+    }
+}
 @-webkit-keyframes cssload-loader {
-		from { -webkit-transform: scale(0); opacity: 1; }
-		to	 { -webkit-transform: scale(1); opacity: 0; }
-}
+    from {
+        -webkit-transform: scale(0);
+        opacity: 1;
+    }
 
-@-moz-keyframes cssload-loader {
-		from { -moz-transform: scale(0); opacity: 1; }
-		to	 { -moz-transform: scale(1); opacity: 0; }
+    to {
+        -webkit-transform: scale(1);
+        opacity: 0;
+    }
 }
-/* </spinner>*/
+@-moz-keyframes cssload-loader {
+    from {
+        -moz-transform: scale(0);
+        opacity: 1;
+    }
+
+    to {
+        -moz-transform: scale(1);
+        opacity: 0;
+    }
+}
+.hideBlock {
+    font-size: 0%;
+    margin-top: 0;
+    margin-bottom: 0;
+    box-shadow: none;
+    border: 0px;
+    width: 0;
+    transition: all .3s ease-in-out;
+}

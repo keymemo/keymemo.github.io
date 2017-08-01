@@ -45,10 +45,22 @@ function state() {
             app.header_input.placeholder = 'Search';
             app.header_input.type = 'Search';
             app.header_input_div.style.marginLeft = 0;
-            app.header_button.innerHTML = '≣';
             app.header_button.onclick = menuButton;
             app.header_input.onkeyup = app.search_header_input;
             app.header_input.onsearch = app.search_header_input;
+
+            // если запуск с локального диска
+            if (app.start_from_local_disk) {
+                app.header_input_div.style.width = "100%";
+                // скрываем кнопки
+                // "Add secret"
+                document.getElementById('add_new_secret').style.display = 'none';
+                // "Свойства"
+                document.getElementById('headerButton').style.display = 'none';
+            } else {
+                app.header_button.innerHTML = '≣';
+
+            }
         }
     }
 }
@@ -100,6 +112,9 @@ function timer_autosave(value) {
             autosave_in.innerHTML = time_logout;
             _this.timer = setInterval(this.tick, (time_logout * 6000));
             //            _this.timer = setInterval(this.tick, (time_logout * 60));
+            app.esc_number_press_to_out = 0;
+            // выход по кнопке ESC если не было изменений
+            document.addEventListener("keyup", esc_to_out);
         },
         // сброс таймера
         reset: function () {
@@ -109,6 +124,7 @@ function timer_autosave(value) {
                     autosave_in.innerHTML = time_logout;
                 }
             }
+            app.esc_number_press_to_out = 0;
         },
         // автоматическое сохранение
         exit: async function () {
@@ -121,5 +137,23 @@ function timer_autosave(value) {
         remove: async function () {
             clearTimeout(_this.timer);
         }
+    }
+}
+
+// обработка нажатия ESC для выхода
+esc_to_out = async function (e) {
+    if (e.keyCode === 27) { // Escape
+        if (app.need_save) {
+            document.removeEventListener('keyup', esc_to_out, false);
+        } else {
+            app.esc_number_press_to_out++;
+            //                console.log("esc press " + app.esc_number_press_to_out);
+            if (app.esc_number_press_to_out >= default_esc_number_press_to_out) {
+                document.removeEventListener('keyup', esc_to_out, false);
+                await app.logout();
+            }
+        }
+    } else {
+        app.esc_number_press_to_out = 0;
     }
 }

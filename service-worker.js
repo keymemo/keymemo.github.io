@@ -1,5 +1,7 @@
-var dataCacheName = 'keymemo-20170619';
-var cacheName = 'keymemo-org-PWA--1';
+let version = '20170709';
+
+var dataCacheName = 'keymemo-' + version;
+var cacheName = 'keymemo-next' + version;
 var filesToCache = [
   '/index.html',
   '/manifest.json',

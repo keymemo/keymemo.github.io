@@ -9,7 +9,7 @@
 - история изменений/дополнений списка секретов хранится на [drive.google.com][drive_google_com] в виде файлов с секретами, дата записи файла отражается в имени файла
 - создавался как замена менеджеру паролей [keymemo.com][caйт_keymemo.com]
 
-Официальный майт KeyMemo.next - [keymemo.github.io][caйт_keymemo.github.io].
+Официальный сайт KeyMemo.next - [keymemo.github.io][caйт_keymemo.github.io].
 
 Весь исходный код доступен на [github.com/keymemo/keymemo.github.io][исходный_код_keymemo.github.io]
 

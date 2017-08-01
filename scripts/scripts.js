@@ -3,6 +3,8 @@
 /*globals escape,unescape*/
 var GeneratedPassword = '';
 
+// количество нажатий на ESC для logout
+let default_esc_number_press_to_out = 4;
 
 //Состояние приложения
 var app = {
@@ -36,6 +38,17 @@ var app = {
     div_settings: document.getElementById('div_settings'),
     select_secrets_and_control_elements: document.getElementById('select_secrets_and_control_elements'),
     import_from_keymemo_com_button: document.getElementById('import_from_keymemo_com_button'),
+
+    // если запуск с локального диска - возвращем true
+    start_from_local_disk: ('file:' === window.location.protocol.toString()) ? true : false,
+    // если запускаемся с keymemo.github.io - возвращаем true
+    start_from_keymemo_github_io: ('keymemo.github.io' === window.location.hostname.toString()) ? true : false,
+    // таймер обновления времени последнего изменения
+    time_out_update_last_change_list_secrets: 0,
+    // таймер для скрола
+    timer_smooth_scrolling: 0,
+    // Задержка для анимации поиска
+    timeout_search_animation: 0,
 };
 
 // возвращает дату изменения списка секретов
@@ -60,7 +73,7 @@ app.set_last_change_list_secrets = function () {
 
     // если запускается на https://keymemo.github.io/
     // то предложить инструкцию по размещению на своих мощностях
-    if ('keymemo.github.io' === window.location.hostname.toString()) {
+    if (app.start_from_keymemo_github_io) {
         // ссылка на инструкцию
         app.last_change_list_secrets.innerHTML = app.last_change_list_secrets.innerHTML +
             '<p><a href="https://github.com/keymemo/keymemo.github.io/blob/master/place_on_your_site.md" target="_blank" class="link_external">Place on your site(self-hosted).</a></p>';
@@ -70,14 +83,6 @@ app.set_last_change_list_secrets = function () {
     }
 }
 
-// если запуск с локального диска - возвращем true
-app.start_from_local_disk = function () {
-    if ('file:' === window.location.protocol.toString()) {
-        return true;
-    } else {
-        return false;
-    }
-}
 // состояние 0 - старт программы
 app.state0 = async function () {
     'use strict';
@@ -85,7 +90,7 @@ app.state0 = async function () {
 
 
     // если запуск с локального диска
-    if (app.start_from_local_disk()) {
+    if (app.start_from_local_disk) {
         app.local_login(app.state1);
     } else
         // если определена папка для хранения секретов на drive.google.com - авторизуемся на гугле
@@ -129,7 +134,6 @@ app.state1 = function () {
 app.state2 = function () {
     'use strict';
     title_state.state2();
-
 
     app.select_secrets_and_control_elements.style.display = 'block';
     // показываем список секретов
@@ -388,16 +392,6 @@ function import_secret_from_keymemo_com(
         '  EBody:' + (EBody) + '<br>');
     // новый секрет
     let new_secret = document.createElement('div');
-    /*
-            <div id=etalonSecret hidden="">
-                <div data-type="field" data-name="SecretName">New secret</div>
-                <div data-type="field" data-name='Login'></div>
-                <div data-type="password" data-name='Password'></div>
-                <div data-type="field" data-name='Tags'></div>
-                <div data-type="link" data-name='Link' data-removable="true" data-href='#del_Name text'></div>
-                <div data-type="textarea" data-name='Notes' data-removable="true"></div>
-            </div>
-    */
     // имя секрета не пустое
     if (app.encrypt(SName) !== '') {
         new_secret.appendChild(new_field_secret('field', 'SecretName', SName));
@@ -676,11 +670,6 @@ app.new_passphrase_input_keyup = function () {
 };
 
 
-
-
-// Отстойник
-
-
 /**
  * открыть файл с секретами
  */
@@ -889,7 +878,7 @@ app.construct_HTML_page_for_export = async function (include_all) {
             let head = documentElement.getElementsByTagName('head')[0];
             // заменяем ссылку на css на содержание
             let links_on_css = documentElement.getElementsByTagName('link');
-            //        i = link_on_css.length;
+
             for (i = 0; i < links_on_css.length; i++) {
                 let link = links_on_css[i];
                 if (link.href && link.href !== '' && link.type === 'text/css') {
@@ -929,7 +918,7 @@ app.recreate_view_secrets = function () {
     // создает ссылку на секрет и возращает div
     function create_link_on_secret(div_source_secret) {
         let wrap_field = document.createElement('div');
-        let k = 0,
+        let i = 0,
             j = 0;
         wrap_field.className = 'list_on_secret';
         if (div_source_secret.getAttribute('data-notsaved') === 'true') {
@@ -940,7 +929,6 @@ app.recreate_view_secrets = function () {
         let a = document.createElement('a');
 
         wrap_field.appendChild(a);
-        //        a.innerHTML = app.decrypt(get_child_div(div_source_secret, 'data-name', 'SecretName').innerHTML);
         a.innerHTML = app.decrypt(get_child_div(div_source_secret, 'data-name').innerHTML);
         a.className = 'link_on_secret';
 
@@ -952,52 +940,71 @@ app.recreate_view_secrets = function () {
             });
         // событие для поиска внутри зашифрованных полей
         a.addEventListener('search_in', function (e) {
+            const classname = 'hideBlock';
+            const inc_timeout_search_animation = 1;
+
+            function check_classname(classList) {
+                if (classList.match(classname)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
             function a_show(a) {
-                a.style.display = 'block';
+                //                a.classList.remove('hideBlock');
+                const classList = a.classList.toString();
+                if (check_classname(classList)) {
+                    setTimeout(function () {
+                        a.classList.remove(classname);
+                    }, app.timeout_search_animation);
+                    app.timeout_search_animation += inc_timeout_search_animation;
+                }
             }
 
             function a_hide(a) {
-                a.style.display = 'none';
+                //                a.classList.add('hideBlock');
+                const classList = a.classList.toString();
+                if (!check_classname(classList)) {
+                    setTimeout(function () {
+                        a.classList.add(classname);
+                    }, app.timeout_search_animation);
+                    app.timeout_search_animation += inc_timeout_search_animation;
+                }
             }
             //console.info("Event is: ", e);
             //console.info("Custom data is: ", e.detail);
-            if (div_source_secret && e.detail.array_word.length > 0) {
-                let search_result = false;
-                // каждое слово
-                for (k = 0; k < e.detail.array_word.length; k++) {
-                    if (e.detail.array_word[k] === '') {
-                        break;
-                    }
-                    if (!search_result && k > 0) {
-                        // первое слово не было найдено - нет смысла продолжать
-                        break;
-                    }
+            let search_result;
+            let array_word = e.detail.array_word;
+            if (div_source_secret && array_word.length > 0) {
+                let children = div_source_secret.children;
+                // проверяем наличие каждого слова
+                for (i = 0; i < array_word.length; i++) {
+                    search_result = false;
+
                     // по полям секрета
-                    for (j = 0; j < div_source_secret.children.length; j++) {
+                    for (j = 0; j < children.length; j++) {
                         // текущее поле расшифровываем
-                        let current_field = div_source_secret.children[j].innerHTML;
+                        let current_field = children[j].innerHTML;
                         if (current_field !== '') {
-                            let innerHTML = app.decrypt(div_source_secret.children[j].innerHTML);
-                            let current_word = new RegExp(e.detail.array_word[k], 'i');
-                            if ((current_word).test(innerHTML)) {
-                                //console.log('    частичное совпадение, слово ' + k + ' ->' + array_word[k] + ' поле->' + innerHTML);
+                            let innerHTML = app.decrypt(current_field);
+                            if (innerHTML.toLowerCase().match(array_word[i])) {
+                                //console.log('    частичное совпадение, слово ' + i + ' ->' + array_word[i] + ' поле->' + innerHTML);
                                 search_result = true;
                                 break;
-                            } else
-                                // дошли до последнего - совпадения нет
-                                if (k === e.detail.array_word.length - 1) {
-                                    search_result = false;
-                                }
+                            }
                         }
                     }
-                    if (search_result) {
-                        a_show(a);
-                    } else {
-                        a_hide(a);
+                    if (!search_result) {
+                        // не было найдено текущее слово - не продолжаем
+                        break;
                     }
                 }
-            } else {
-                a_show(a);
+                if (search_result) {
+                    a_show(a);
+                } else {
+                    a_hide(a);
+                }
             }
         });
         return wrap_field;
@@ -1055,9 +1062,9 @@ app.data_now = function () {
     return date_now;
 };
 
-// возвращает текстом разницу между текущим временем и переданным.
-app.data_difference = function (data) {
-
+// формируем из формата "YYYY-MM-DD_HH:MM:SS(UTC)"
+// в количестве миллисекунд
+app.data_getTime = function (data) {
     // формируем время в формате "YYYY-MM-DD_HH:MM:SS(UTC)" из полученного
     let Year = data.substr(0, 4);
     let Month = data.substr(5, 2);
@@ -1067,9 +1074,25 @@ app.data_difference = function (data) {
     let Seconds = data.substr(17, 2);
 
     let currentTimeZoneOffsetInHours = new Date().getTimezoneOffset() / 60;
-    let data_in_format = new Date(Year, Month - 1, Day, Hour - currentTimeZoneOffsetInHours, Minute, Seconds);
 
-    let data_diff = (Date.now() - data_in_format.getTime()) / 1000;
+    let data_in_format = new Date(Year, Month - 1, Day, +Hour - currentTimeZoneOffsetInHours, Minute, Seconds);
+
+    return data_in_format.getTime();
+}
+
+// возвращает текстом разницу между текущим временем и переданным.
+app.data_difference = function (data) {
+
+    let data_diff = (new Date().getTime() - app.data_getTime(data)) / 1000;
+
+    // таймер для обновления даты изменения списка секретов
+    clearTimeout(app.time_out_update_last_change_list_secrets);
+    app.time_out_update_last_change_list_secrets =
+        setTimeout(app.set_last_change_list_secrets,
+            (data_diff < 60) ? 1 * 1000 :
+            ((data_diff < 3600) ? 60 * 1000 :
+                3600 * 1000)
+        );
 
     // более года 60*60*24*365
     if (data_diff > 31536000) {
@@ -1118,13 +1141,18 @@ app.data_difference = function (data) {
     }
 
     // несколько минут назад 60*2
-    if (data_diff > 180) {
+    if (data_diff > 120) {
         return (parseInt(data_diff / 60) + " minutes ago");
     }
 
     // несколько минут назад 60
     if (data_diff > 60) {
         return (parseInt(data_diff / 60) + " minute ago");
+    }
+
+    // время сохранения в будущем
+    if (data_diff < 0) {
+        return ("Date from the future");
     }
 
     // несколько секунд назад
@@ -1140,9 +1168,10 @@ app.data_difference = function (data) {
 // view_secret
 app.edit_secret = function (source_div, link_on_secret) {
     'use strict';
+    let need_save_secret = false;
 
     // если запуск с диска - ничего не делать
-    if (app.start_from_local_disk() && undefined === source_div) {
+    if (app.start_from_local_disk && undefined === source_div) {
         return;
     }
 
@@ -1157,9 +1186,46 @@ app.edit_secret = function (source_div, link_on_secret) {
         // новый секрет из эталонного
         var intermediate_div = get_div_byId('etalonSecret').cloneNode(true);
         intermediate_div.removeAttribute('id');
+        app.last_change_set(intermediate_div);
     } else {
         intermediate_div = source_div.cloneNode(true);
     }
+
+    // высоту textarea устанавливаем такой, чтобы не было скролинга
+    function resize_textarea(text_area, min_cols, max_cols) {
+        text_area.rows = 0;
+        while (text_area.clientHeight < text_area.scrollHeight) {
+            text_area.rows++;
+            if (text_area.rows > max_cols) {
+                break;
+            }
+        };
+        text_area.rows = Math.max(min_cols, text_area.rows);
+    }
+
+    // плавный скрол к элементу
+    function smooth_scrolling(parent_element, element, time) {
+        // scrollTop измеряет дистанцию от верха элемента до верхней точки видимого контента
+        // если до результата менее 2 px
+        const delta = Math.abs(element.offsetTop - parent_element.scrollTop);
+        if (delta < 2) {
+            parent_element.scrollTop = element.offsetTop;
+        } else {
+            //выше или ниже
+            const sign = Math.sign(element.offsetTop - parent_element.scrollTop);
+            // отслеживаем было ли движение
+            const tmp_scrollTop = parent_element.scrollTop;
+
+            parent_element.scrollTop = parent_element.scrollTop + sign * delta / 4;
+
+            if (Math.abs(tmp_scrollTop - parent_element.scrollTop) > 3) {
+                clearTimeout(app.timer_smooth_scrolling);
+                app.timer_smooth_scrolling = setTimeout(smooth_scrolling, 30, parent_element, element, time);
+            }
+        }
+
+    }
+
 
     // формирует вид записи
     // на входе - div записи-источника
@@ -1171,7 +1237,6 @@ app.edit_secret = function (source_div, link_on_secret) {
         let name = div.getAttribute('data-name') || 'name not defined';
         let value = div.innerHTML || '';
         let removable = div.getAttribute('data-removable') || 'false';
-        //var href = div.getAttribute('data-href') || '';
 
         // создаем элемент div - содержит строку с записью - в конце вернем
         let return_div = document.createElement('div');
@@ -1184,20 +1249,12 @@ app.edit_secret = function (source_div, link_on_secret) {
         if (type === 'textarea') { // поле ввода
             element_input = document.createElement('textarea');
             element_input.classList.add('textarea_edited_secret');
-            //            var rrr = element_input.getAttribute('data-textareaHeight');
-            if (div.getAttribute('data-textareaHeight')) {
-                element_input.style.height = div.getAttribute('data-textareaHeight');
-            } else {
-                element_input.style.height = '4em';
-            }
-
         } else {
             element_input = document.createElement('input');
         }
         element_input.setAttribute('id', name);
         let wrap_element_input = document.createElement('div'); // обертка для поля ввода
         let element_copy = document.createElement('a'); // "copy"
-        //        var element_generate_password = document.createElement('div'); // generate_password
         element_input.value = value;
 
         // добавляем в родительский контейнер
@@ -1214,7 +1271,6 @@ app.edit_secret = function (source_div, link_on_secret) {
 
         // class'ы
         element_title.className = 'field_title';
-        //        element_input.className = 'input_focus_off';
         element_input.classList.add('input_focus_off');
         wrap_element_input.className = 'element_input';
 
@@ -1319,13 +1375,22 @@ app.edit_secret = function (source_div, link_on_secret) {
                     element_input.focus();
                     document.execCommand('copy');
                     element_input.blur();
+                    // восстанавливаем значение
                     element_input.value = save_encrypted_value;
                     element_input.classList.add('copied');
                 }
             });
+
+        // отслеживаем изменение значения поля
+        let tmp_element_input = '';
+        let tmp_element_input_encrypt = '';
         // потеря фокуса
         element_input.addEventListener('blur',
             function () {
+                // если значение изменилось
+                if (tmp_element_input !== element_input.value) {
+                    need_save_secret = true;
+                }
                 // сохраняем высоту для textarea
                 if (type === 'textarea') {
                     div.setAttribute('data-textareaHeight', element_input.style.height)
@@ -1369,23 +1434,38 @@ app.edit_secret = function (source_div, link_on_secret) {
             function () {
                 let data = div.innerHTML;
 
+                // сохраняем значение encrypt
+                tmp_element_input_encrypt = data;
+
                 this.classList.add('input_focus_on');
                 this.classList.remove('input_focus_off');
                 // если значение не пустое - дешифруем
-                if (data === '') {
-                    return;
+                if (data !== '') {
+                    if (app.passPhrase !== '') {
+                        this.value = app.decrypt(data);
+                        // сохраняем значение
+                        tmp_element_input = this.value;;
+                    }
                 }
-                if (app.passPhrase !== '') {
-                    this.value = app.decrypt(data);
+
+                // высота textarea
+                if (type === 'textarea') {
+                    resize_textarea(element_input, "2", "40")
+                    // скрол на элемент
+                    smooth_scrolling(app.div_edited_secret, element_input.parentElement, 2);
+                } else {
+                    // скрол на элемент
+                    smooth_scrolling(app.div_edited_secret, element_input.parentElement.parentElement, 2);
                 }
                 this.select();
+
             }, false);
 
         // ввод символа
         element_input.addEventListener('keyup',
             function () {
                 if (this.value !== '') {
-                    //                    console.log('Key code ' + event.keyCode);
+                    // console.log('Key code ' + event.keyCode);
                     // Enter
                     if (event.keyCode === 13 && type !== 'textarea') {
                         this.blur();
@@ -1399,7 +1479,6 @@ app.edit_secret = function (source_div, link_on_secret) {
                         this.blur();
                     }
                 }
-                //}
 
             }, false);
         return return_div;
@@ -1407,6 +1486,17 @@ app.edit_secret = function (source_div, link_on_secret) {
 
     // обновить вывод текущего секрета
     function refresh_view_secret() {
+
+        // скрыть секрет
+        function secret_hide() {
+            // удаляем промежуточный
+            app.div_edited_secret.innerHTML = '';
+            app.div_edited_secret.style.display = 'none';
+            app.div_edited_secret.classList.add('hidden_secret');
+            // отмена выхода по ESC
+            document.removeEventListener('keyup', esc_press, false);
+        }
+
         app.div_edited_secret.innerHTML = '';
 
         let add = document.createElement('a');
@@ -1461,7 +1551,7 @@ app.edit_secret = function (source_div, link_on_secret) {
                 div_show_id('div_form_add_field');
                 document.getElementById('add_field_name').focus();
             });
-        if (!app.start_from_local_disk()) {
+        if (!app.start_from_local_disk) {
             app.div_edited_secret.appendChild(add);
         }
 
@@ -1485,38 +1575,35 @@ app.edit_secret = function (source_div, link_on_secret) {
             app.div_edited_secret.appendChild(view_field_representation(current_field));
         }
 
-        // удалить секрет
-        remove.innerHTML = 'Remove secret';
-        remove.className = 'button_active';
-        remove.setAttribute('id', 'remove_secret');
-        remove.addEventListener('click',
-            function () {
-                app.div_edited_secret.classList.add('hidden_secret');
-                // обновляем "последнее изменение" списка секретов
-                app.last_change_set(source_div.parentElement);
-                //удаляем временную копию
-                intermediate_div.remove();
-                //удаляем исходный секрет
-                source_div.remove();
+        if (!app.start_from_local_disk) {
+            if (undefined !== source_div) {
+                // удалить секрет
+                remove.innerHTML = 'Remove secret';
+                remove.className = 'button_active';
+                remove.setAttribute('id', 'remove_secret');
+                remove.addEventListener('click',
+                    function () {
+                        secret_hide();
 
-                if (link_on_secret) {
-                    setTimeout(function () {
-                        link_on_secret.parentNode.classList.add('hidden');
-                    }, 500);
-                }
-                setTimeout(function () {
-                    // удаляемый секрет
-                    app.div_edited_secret.innerHTML = '';
-                    app.div_edited_secret.style.display = 'none';
-                    link_on_secret.parentNode.remove();
-                    app.recreate_view_secrets();
-                }, 1000);
-                // удаляем ссылку на секрет
-                //                this.remove();
+                        //удаляем исходный секрет
+                        source_div.remove();
 
-            });
-        if (!app.start_from_local_disk()) {
-            app.div_edited_secret.appendChild(remove);
+                        if (link_on_secret) {
+                            setTimeout(function () {
+                                link_on_secret.parentNode.classList.add('hidden');
+                            }, 500);
+                        }
+                        setTimeout(function () {
+                            // удаляемый секрет
+                            app.div_edited_secret.innerHTML = '';
+                            app.div_edited_secret.style.display = 'none';
+                            link_on_secret.parentNode.remove();
+                            app.recreate_view_secrets();
+                        }, 1000);
+                    });
+
+                app.div_edited_secret.appendChild(remove);
+            }
         }
 
         //сохранить секрет
@@ -1527,6 +1614,7 @@ app.edit_secret = function (source_div, link_on_secret) {
             async function () {
                 let SecretName = get_name_secret(intermediate_div);
                 if (SecretName.innerHTML !== '') {
+
                     // удаляем источник секрета
                     if (source_div) {
                         source_div.remove();
@@ -1547,37 +1635,50 @@ app.edit_secret = function (source_div, link_on_secret) {
                     app.recreate_view_secrets();
                     app.search_header_input();
 
-                    // скрываем
-                    app.div_edited_secret.style.display = 'none';
-                    app.div_edited_secret.innerHTML = '';
-
                     // скрол к сохранненому элементу
                     let current_secret = app.div_view_secrets.childNodes[index];
-                    current_secret.parentNode.scrollTop = current_secret.offsetTop;
+                    smooth_scrolling(current_secret.parentNode, current_secret, 2);
+
                     // подсвечиваем
                     current_secret.firstChild.classList = 'link_on_secret link_on_secret_add';
                     header_input.focus();
+
+                    secret_hide();
                 } else {
                     document.getElementById('SecretName').focus();
                 }
             });
-        if (!app.start_from_local_disk()) {
+        if (!app.start_from_local_disk) {
             app.div_edited_secret.appendChild(save);
         }
         // не сохранять секрет
         cancel.innerHTML = 'Cancel';
         cancel.className = 'button_active';
         cancel.setAttribute('id', 'cancel_secret');
-        cancel.addEventListener('click',
-            function () {
-                // удаляем промежуточный
-                app.div_edited_secret.innerHTML = '';
-                app.div_edited_secret.style.display = 'none';
-                intermediate_div.innerHTML = '';
-                intermediate_div.remove();
-                // обновить дату последнего изменения списка секретов
-                app.last_change_list_secrets.innerHTML = app.data_change_diff_now(app.get_data_change_list_secret());
-            });
+        // отмена изменений
+        function cancel_press() {
+            secret_hide();
+            intermediate_div.innerHTML = '';
+            intermediate_div.remove();
+        };
+
+        // отслеживаем нажание кнопки ESC
+        function esc_press(e) {
+            if (e.keyCode === 27) { // Escape
+                //                console.log('esc press');
+                // убираем фокус с текущего элемента
+                document.activeElement.blur();
+                // не было изменений - выходим
+                if (!need_save_secret) {
+                    cancel_press();
+                }
+            }
+        }
+
+        cancel.addEventListener('click', cancel_press);
+
+        // выход по кнопке ESC если не было изменений
+        document.addEventListener("keyup", esc_press);
         app.div_edited_secret.appendChild(cancel);
     }
 
@@ -1588,7 +1689,6 @@ app.edit_secret = function (source_div, link_on_secret) {
 
 // обработка Enter как нажатия на кнопку
 app.keyEnter = function (event) {
-    //    console.log('event.keyCode:' + event +' '+ event.keyCode+' ' + this.value);
     if (event.keyCode === 13) {
         set_passphrase();
     }
@@ -1600,12 +1700,11 @@ app.search_header_input = function () {
     function search_secrets() {
         'use strict';
         let i;
-        //нормализуем входные данные
-        // убираем двойные пробелы
-        app.header_input.value = app.header_input.value.replace(/ {1,}/g, ' ');
+
+        app.timeout_search_animation = 0;
 
         // ограничение максимального количества символов для поиска
-        let max_chars = 20;
+        const max_chars = 20;
         if (app.header_input.value.length > max_chars) {
             app.header_input.value = app.header_input.value.substr(0, max_chars);
         }
@@ -1613,28 +1712,26 @@ app.search_header_input = function () {
         if (app.header_input.value[0] === ' ') {
             app.header_input.value = '';
         }
-        // поле ввода не пустое - поиск
+
         let view_secrets_children = app.div_view_secrets.children;
-        if (app.header_input.value.length > 0) {
-            //массив слов для поиска
-            let words = app.header_input.value.split(' ');
+        //нормализуем входные данные
+        let input_value = app.header_input.value.toLowerCase();
+        // убираем двойные пробелы
+        input_value = input_value.replace(/ {1,}/g, ' ');
 
-            // в событии передаем массив слов для поиска
-            let search_event = new CustomEvent('search_in', {
-                detail: {
-                    array_word: words
-                }
-            });
+        //массив слов для поиска
+        let words = input_value.split(' ');
 
-            // по всем секретам
-            for (i = 0; i < view_secrets_children.length; i++) {
-                view_secrets_children[i].childNodes[0].dispatchEvent(search_event);
+        // в событии передаем массив слов для поиска
+        let search_event = new CustomEvent('search_in', {
+            detail: {
+                array_word: words
             }
-        } else { // все секреты видимы
-            for (i = 0; i < view_secrets_children.length; i++) {
-                //view_secrets_children[i].childNodes[0].dispatchEvent(search_event);
-                view_secrets_children[i].childNodes[0].style.display = 'block';
-            }
+        });
+
+        // по всем секретам
+        for (i = 0; i < view_secrets_children.length; i++) {
+            view_secrets_children[i].childNodes[0].dispatchEvent(search_event);
         }
 
     }
@@ -1662,7 +1759,6 @@ app.last_change_set = function (div) {
 }
 
 
-
 /**
  * возвращает значение атрибута 'data-lastChange'
  * @param {div} div - <div> где ищется атрибут
@@ -1678,7 +1774,6 @@ app.clear_view_secrets = function () {
     'use strict';
     app.div_view_secrets.innerHTML = '';
 };
-
 
 
 // сохраняем настройки локально в localStorage.
@@ -1762,8 +1857,8 @@ app.sorting_secrets_abc = function () {
         }
     }
 
-    let maxtime = 100; // время обработки блоков массива
-    let delay = 20; // задержка между двумя процессами обработки блоков
+    const maxtime = 100; // время обработки блоков массива
+    const delay = 20; // задержка между двумя процессами обработки блоков
     let i = 0;
     progress_bar.log('<br>All secrets:' + len_div_list_secrets + ' secrets.<br>');
     setTimeout(function tick() {
@@ -1911,12 +2006,14 @@ app.get_last_keymemo = async function (callback_set_list_secrets_HTML) {
                                                 }
                                             });
                                         } else {
-                                            console.log('error');
+                                            // файлов нет
+                                            console.log('First start');
                                             header_input.value = 'default_PassPhrase';
                                             set_passphrase();
                                             app.logo_drive.classList = 'logo_drive';
                                             app.logo_drive.setAttribute('title', 'Not saved.');
                                             app.spinner_none();
+
                                         }
                                     });
                                 });
@@ -1935,7 +2032,7 @@ app.get_last_keymemo = async function (callback_set_list_secrets_HTML) {
 // сохранение параметров в localStorage
 app.logout = async function () {
     //
-    if (!app.start_from_local_disk() && app.need_save) {
+    if (!app.start_from_local_disk && app.need_save) {
         app.remove_attr_notSaved(app.div_list_secrets);
         // ** локально сохраняем **
         app.save_to_localStorage();
@@ -1964,7 +2061,7 @@ app.save_to_localStorage = async function () {
 
 // загрузка параметров
 app.local_login = function (callback) {
-    if (!app.start_from_local_disk()) {
+    if (!app.start_from_local_disk) {
         app.folder_id_drive_google_com = localStorage['folder_id_drive_google_com'];
         app.welcome_phrase = localStorage['welcome_phrase'];
         // проверка drive.google.com на секреты новее
@@ -2129,9 +2226,7 @@ function copy_div_attributes(div_source, div_target) {
 // очистка localStorage
 app.remove_local_data = function () {
     window.localStorage.clear();
-    //    delete window.worker;
     app.unregister_service_worker();
-    //    window.location.reload();
     timer_autosave_in.remove();
     app.div_settings.style.display = 'none';
     app.div_view_secrets.style.display = 'none';
