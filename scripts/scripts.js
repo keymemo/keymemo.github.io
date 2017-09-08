@@ -49,7 +49,18 @@ var app = {
     timer_smooth_scrolling: 0,
     // Задержка для анимации поиска
     timeout_search_animation: 0,
+    // таймер поиска
+    timer_search: 0,
 };
+
+
+// ctrl-f отменяет стандартный поиск и переносит фокус на поле ввода
+window.addEventListener("keydown",function (e) {
+    if (e.keyCode === 114 || (e.ctrlKey && e.keyCode === 70)) {
+        e.preventDefault();
+        header_input.focus();
+    }
+})
 
 // возвращает дату изменения списка секретов
 app.get_data_change_list_secret = function () {
@@ -1728,17 +1739,21 @@ app.search_header_input = function () {
                 array_word: words
             }
         });
-
+        let timer_search = app.timer_search;
         // по всем секретам
         for (i = 0; i < view_secrets_children.length; i++) {
+            // начался новый поиск - прекращаем этот
+            if (timer_search !== app.timer_search) {
+                break;
+            }
             view_secrets_children[i].childNodes[0].dispatchEvent(search_event);
+
         }
 
     }
-    // поиск с задержкой
-    fnDelay(function () {
-        search_secrets();
-    }, 300);
+
+    clearTimeout(app.timer_search);
+    app.timer_search = setTimeout(search_secrets, 300);
 
 };
 
