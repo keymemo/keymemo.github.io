@@ -59,7 +59,7 @@ function state() {
                 document.getElementById('headerButton').style.display = 'none';
             } else {
                 app.header_button.innerHTML = '≣';
-
+                app.isAuthorized=true;
             }
         }
     }
@@ -68,16 +68,6 @@ function state() {
 var title_state = state();
 
 var timer_autosave_in = timer_autosave();
-
-// https://habrahabr.ru/post/228325/
-fnDelay = (function () {
-    'use strict';
-    let timer = 0;
-    return function (callback, ms) {
-        clearTimeout(timer);
-        timer = setTimeout(callback, ms);
-    };
-})();
 
 // управление автосохранением
 function timer_autosave(value) {

@@ -8,7 +8,12 @@ let default_esc_number_press_to_out = 4;
 
 //Состояние приложения
 var app = {
-    isLoading: true,
+    // авторизован
+    isAuthorized: false,
+    // авторизован на google drive
+    isAuthorized_gdrive: false,
+    // идет проверка "есть ли списрк новее"
+    isCheck_where_newer_list_secret: true,
     // было изменение
     need_save: false,
     // id папки на drive.google.com
@@ -44,7 +49,7 @@ var app = {
     // если запускаемся с keymemo.github.io - возвращаем true
     start_from_keymemo_github_io: ('keymemo.github.io' === window.location.hostname.toString()) ? true : false,
     // таймер обновления времени последнего изменения
-    time_out_update_last_change_list_secrets: 0,
+    timer_out_update_last_change_list_secrets: 0,
     // таймер для скрола
     timer_smooth_scrolling: 0,
     // Задержка для анимации поиска
@@ -55,7 +60,7 @@ var app = {
 
 
 // ctrl-f отменяет стандартный поиск и переносит фокус на поле ввода
-window.addEventListener("keydown",function (e) {
+window.addEventListener("keydown", function (e) {
     if (e.keyCode === 114 || (e.ctrlKey && e.keyCode === 70)) {
         e.preventDefault();
         header_input.focus();
@@ -79,12 +84,38 @@ app.data_change_diff_now = function (date) {
 }
 
 // вывод даты изменения списка секретов
-app.set_last_change_list_secrets = function () {
+app.show_last_change_list_secrets = function () {
     app.last_change_list_secrets.innerHTML = app.data_change_diff_now(app.get_data_change_list_secret());
+
+    // разница между "сейчас" и временем изменения списком секрета
+    function data_diff_last_change() {
+        return (new Date().getTime() - app.data_getTime(app.get_data_change_list_secret())) / 1000;
+    }
+
+    // таймер для обновления даты изменения списка секретов
+    clearTimeout(app.timer_out_update_last_change_list_secrets);
+    app.timer_out_update_last_change_list_secrets =
+        setTimeout(function () {
+                app.show_last_change_list_secrets();
+
+                // проверка нет ли более новой версии файла секретов
+                // 1 час
+                if (!app.isAuthorized && app.isAuthorized_gdrive && data_diff_last_change() > 3600) {
+                    // проверка где новее секрет
+                    setTimeout(
+                        app.check_where_newer_list_secret,
+                        1);
+                }
+            },
+            (data_diff_last_change() < 60) ? 1 * 1000 :
+            ((data_diff_last_change() < 3600) ? 60 * 1000 :
+                3600 * 1000)
+        );
+
 
     // если запускается на https://keymemo.github.io/
     // то предложить инструкцию по размещению на своих мощностях
-    if (app.start_from_keymemo_github_io) {
+    if (app.start_from_keymemo_github_io && !app.isAuthorized) {
         // ссылка на инструкцию
         app.last_change_list_secrets.innerHTML = app.last_change_list_secrets.innerHTML +
             '<p><a href="https://github.com/keymemo/keymemo.github.io/blob/master/place_on_your_site.md" target="_blank" class="link_external">Place on your site(self-hosted).</a></p>';
@@ -98,7 +129,6 @@ app.set_last_change_list_secrets = function () {
 app.state0 = async function () {
     'use strict';
     title_state.state0();
-
 
     // если запуск с локального диска
     if (app.start_from_local_disk) {
@@ -122,10 +152,10 @@ app.state0 = async function () {
             } else {
                 document.getElementById('spinner').innerHTML =
                     '<p class="warning_text"><br>' +
-                    'You need to allow pop-ups <br>to access drive.google.com.<br><br>' +
-                    'Reload the page.</p>' +
-
-                    '<p><a href="https://github.com/keymemo/keymemo.github.io/blob/master/README.md" target="_blank" class="link_external" style="text-align: center; display: block;"><br>Read more...<br></a></p>';
+                    'You need to allow pop-ups <br>' +
+                    'for preserve the secrets need <br>to allow access to drive.google.com.<br><br>' +
+                    '<a href="javascript:history.go(0)" class="warning_text">Reload page</a>' +
+                    '<a href="https://github.com/keymemo/keymemo.github.io/blob/master/README.md" target="_blank" class="link_external" style="text-align: center; display: block;"><br>Read more...<br></a></p>';
             }
         }
 }
@@ -136,11 +166,11 @@ app.state1 = function () {
     'use strict';
     title_state.state1();
     header_input.focus();
-    app.set_last_change_list_secrets();
+    app.show_last_change_list_secrets();
 }
 
 /**
- * Третий этам - подготовка и работа
+ * Третий этап - подготовка и работа
  */
 app.state2 = function () {
     'use strict';
@@ -154,6 +184,13 @@ app.state2 = function () {
     timer_autosave_in.init();
     app.online_offline.onclick = app.logout;
     app.online_offline.innerHTML = 'Logout';
+    // версия service worker
+    SW_putt_command("version",
+        function (answer) {
+            console.log("answer: ", answer);
+            document.getElementById("service_worker_cache_version").innerHTML = 'Version:' + answer;
+        }
+    );
 }
 
 
@@ -451,7 +488,6 @@ app.changePassPhrase = function () {
     app.need_save = true;
     app.logout();
 }
-
 
 
 /**
@@ -963,7 +999,6 @@ app.recreate_view_secrets = function () {
             }
 
             function a_show(a) {
-                //                a.classList.remove('hideBlock');
                 const classList = a.classList.toString();
                 if (check_classname(classList)) {
                     setTimeout(function () {
@@ -992,7 +1027,6 @@ app.recreate_view_secrets = function () {
                 // проверяем наличие каждого слова
                 for (i = 0; i < array_word.length; i++) {
                     search_result = false;
-
                     // по полям секрета
                     for (j = 0; j < children.length; j++) {
                         // текущее поле расшифровываем
@@ -1029,7 +1063,8 @@ app.recreate_view_secrets = function () {
     }
 
     // дата последнего изменения списка секретов
-    app.last_change_list_secrets.innerHTML = app.data_change_diff_now(app.get_data_change_list_secret());
+    app.show_last_change_list_secrets();
+
     //
     if (app.need_save) {
         app.online_offline.innerHTML = 'Need SAVE!!!';
@@ -1095,15 +1130,6 @@ app.data_getTime = function (data) {
 app.data_difference = function (data) {
 
     let data_diff = (new Date().getTime() - app.data_getTime(data)) / 1000;
-
-    // таймер для обновления даты изменения списка секретов
-    clearTimeout(app.time_out_update_last_change_list_secrets);
-    app.time_out_update_last_change_list_secrets =
-        setTimeout(app.set_last_change_list_secrets,
-            (data_diff < 60) ? 1 * 1000 :
-            ((data_diff < 3600) ? 60 * 1000 :
-                3600 * 1000)
-        );
 
     // более года 60*60*24*365
     if (data_diff > 31536000) {
@@ -1747,9 +1773,7 @@ app.search_header_input = function () {
                 break;
             }
             view_secrets_children[i].childNodes[0].dispatchEvent(search_event);
-
         }
-
     }
 
     clearTimeout(app.timer_search);
@@ -2060,6 +2084,7 @@ app.logout = async function () {
     } else {
         location.reload();
     }
+    app.isAuthorized = false;
 }
 
 // сохраняем в localStorage
@@ -2108,35 +2133,42 @@ app.remove_attr_notSaved = function (div) {
 
 // проверка где список новее
 app.check_where_newer_list_secret = async function () {
-    if (app.folder_id_drive_google_com) {
-        // логотип drive.google.com показывается и вращается
-        app.logo_drive.style.display = 'block';
-        app.online_offline.onclick = app.logout;
-        app.logo_drive.classList = 'logo_drive_rotation';
-        app.logo_drive.onclick = app.logout;
+    if (app.isCheck_where_newer_list_secret) {
+        app.isCheck_where_newer_list_secret = false;
+        if (app.folder_id_drive_google_com) {
+            // логотип drive.google.com показывается и вращается
+            app.logo_drive.style.display = 'block';
+            app.online_offline.onclick = app.logout;
+            app.logo_drive.classList = 'logo_drive_rotation';
+            app.logo_drive.onclick = app.logout;
 
-        await app.get_last_keymemo(
-            function (gdrive_list_secret) {
-                // дата сохранения на goodle.drive.com
-                let data_saved_gdrive_list_secret = gdrive_list_secret.getAttribute('data-lastchange');
-                // дата сохранения локально
-                let data_saved_localStorage = app.div_list_secrets.getAttribute('data-lastchange');
+            await app.get_last_keymemo(
+                function (gdrive_list_secret) {
+                    // дата сохранения на goodle.drive.com
+                    let data_saved_gdrive_list_secret = gdrive_list_secret.getAttribute('data-lastchange');
+                    // дата сохранения локально
+                    let data_saved_localStorage = app.div_list_secrets.getAttribute('data-lastchange');
 
-                app.logo_drive.classList = 'logo_drive';
-                if (data_saved_gdrive_list_secret > data_saved_localStorage) {
-                    // на drive.google.com новее
-                    if (window.confirm('The data is fresh on drive.google.com.     Download?')) {
-                        app.div_list_secrets.innerHTML = gdrive_list_secret.innerHTML;
-                        copy_div_attributes(gdrive_list_secret, app.div_list_secrets);
-                        app.need_save = true;
-                        app.logout();
+                    app.logo_drive.classList = 'logo_drive';
+                    if (data_saved_gdrive_list_secret > data_saved_localStorage) {
+                        // на drive.google.com новее
+                        let string = 'The data secrets is fresh (' + data_saved_gdrive_list_secret + ') on drive.google.com.\n\rDownload?'
+                        if (window.confirm(string)) {
+                            app.div_list_secrets.innerHTML = gdrive_list_secret.innerHTML;
+                            copy_div_attributes(gdrive_list_secret, app.div_list_secrets);
+                            app.need_save = true;
+                            app.logout();
+                        }
                     }
-                }
 
-                // дата последнего изменения списка секретов
-                app.set_last_change_list_secrets();
-            }
-        )
+                    // дата последнего изменения списка секретов
+                    app.show_last_change_list_secrets();
+                    app.isCheck_where_newer_list_secret = true;
+                    app.isAuthorized_gdrive = true;
+                }
+            )
+        }
+        app.isCheck_where_newer_list_secret = true;
     }
 }
 
@@ -2272,3 +2304,53 @@ app.unregister_service_worker = function () {
         }
     })
 }
+
+
+
+function twoWayCommunication() {
+    if (navigator.serviceWorker.controller) {
+        var messageChannel = new MessageChannel();
+        messageChannel.port1.onmessage = function (event) {
+            console.log("Response from the SW : ", event.data.message);
+        }
+
+        console.log("Sending message to the service worker");
+        navigator.serviceWorker.controller.postMessage({
+            "command": "twoWayCommunication",
+            "message": "Hi, SW"
+        }, [messageChannel.port1]);
+    } else {
+        console.log("No active ServiceWorker");
+    }
+}
+
+function SW_putt_command(SW_command, callback) {
+    if (navigator.serviceWorker.controller) {
+        var messageChannel = new MessageChannel();
+        messageChannel.port1.onmessage = function (event) {
+            //            console.log("SW->send: ", event.data.message);
+            callback(event.data.message);
+        }
+
+        //        console.log("SW-> recieved");
+        navigator.serviceWorker.controller.postMessage({
+            "command": SW_command,
+            "message": "Hi, SW"
+        }, [messageChannel.port2]);
+    } else {
+        console.log("No active ServiceWorker");
+        callback("No active ServiceWorker");
+    }
+}
+
+
+setTimeout(function () {
+        SW_putt_command("version",
+            function (answer) {
+                console.log("answer: ", answer);
+                document.getElementById("service_worker_cache_version").innerHTML = 'Version soft:' + answer;
+            }
+        );
+    },
+    5000
+);

@@ -1,4 +1,4 @@
-let version = '20170908';
+let version = '20171013';
 
 var dataCacheName = 'keymemo-' + version;
 var cacheName = 'keymemo-next' + version;
@@ -88,4 +88,20 @@ self.addEventListener('beforeinstallprompt', function (e) {
             console.log('User added to home screen');
         }
     });
+});
+
+
+
+
+self.addEventListener('message', function (event) {
+    var data = event.data;
+    //    console.log("SW-> command: ", data.command);
+
+    // возвращаем dataCacheName
+    if (data.command == "version") {
+        //        console.log("Page<-answer: ", version);
+        event.ports[0].postMessage({
+            "message": version
+        });
+    }
 });
