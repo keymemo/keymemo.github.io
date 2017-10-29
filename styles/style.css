@@ -174,7 +174,8 @@
 .field_title_link,
 .label0,
 .lastChange_secret_title,
-.service_worker_cache_version {
+.service_worker_cache_version,
+.service_worker_cache_version_alert {
     font-size: 1.2em;
     font-family: monospace ! important;
     font-weight: bold;
@@ -182,6 +183,7 @@
     /*запрет выделения мышью*/
     -moz-user-select: none;
     -webkit-user-select: none;
+    cursor: default;
 }
 
 .label0 {
@@ -299,7 +301,6 @@
 }
 
 .link_on_secret_add {
-    transition: all 5.1s ease-in-out;
     color: mediumblue;
     background-color: darkgray;
 }
@@ -1078,8 +1079,10 @@ hr {
     float: left;
     text-align: left;
 }
-
 .service_worker_cache_version {
+    /*    добавить отступ справа на ширину прокрутки*/
+
+    cursor: default;
     font-size: 0.8em;
     float: right;
     display: table-cell;
@@ -1087,7 +1090,10 @@ hr {
     bottom: 0em;
     right: 0em;
 }
-
+.service_worker_cache_version_alert {
+    color: red !important;
+    cursor: pointer;
+}
 #lastChange_secrets,
 #last_change_list_secrets {
     color: red;

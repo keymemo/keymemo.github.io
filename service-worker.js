@@ -1,4 +1,4 @@
-let version = '20171013';
+let version = '20171016';
 
 var dataCacheName = 'keymemo-' + version;
 var cacheName = 'keymemo-next' + version;
@@ -22,7 +22,6 @@ var filesToCache = [
   '/images/icons/icon-256x256.png',
   '/favicon.png',
   '/styles/style.css'
-
 ];
 
 self.addEventListener('install', function (e) {
@@ -98,7 +97,7 @@ self.addEventListener('message', function (event) {
     //    console.log("SW-> command: ", data.command);
 
     // возвращаем dataCacheName
-    if (data.command == "version") {
+    if (data.command == "get_version_soft") {
         //        console.log("Page<-answer: ", version);
         event.ports[0].postMessage({
             "message": version

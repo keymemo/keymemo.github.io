@@ -164,6 +164,18 @@
                     <div id='last_change_list_secrets'>undefined</div>
                 </div>
             </div>
+
+            <!--service worker cache version-->
+            <div>
+                <!--                <img id="logo_drive" src="/images/logo-drive.png" hidden="">-->
+                <span class="service_worker_cache_version">
+                    <span id="service_worker_cache_version_title" >Version soft:
+                    </span>
+                <span id="service_worker_cache_version"> ...
+                    </span>
+                </span>
+            </div>
+
             <div id="select_secrets_and_control_elements" hidden="">
                 <div id="secret_add">
                     <a hpref="#add_new_secret" id="add_new_secret" class="button_active" onclick="app.edit_secret();">Add secret</a>
@@ -178,11 +190,6 @@
                 <img id="logo_drive" src="/images/logo-drive.png" hidden="">
             </div>
 
-            <!--service worker cache version-->
-            <div>
-<!--                <img id="logo_drive" src="/images/logo-drive.png" hidden="">-->
-                <span id="service_worker_cache_version" class="service_worker_cache_version">...</span>
-            </div>
 
             <!--спиннер-->
             <div id='spinner' class="div_full_screen_inner">
@@ -302,6 +309,7 @@
                         .register('./service-worker.js')
                         .then(function() {
                             console.log('Service Worker Registered');
+                            app.chech_version_service_worker();
                         });
                 }
                 app.state0();

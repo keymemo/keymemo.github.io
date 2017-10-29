@@ -34,6 +34,10 @@ var app = {
     last_change_list_secrets: document.getElementById('last_change_list_secrets'),
     div_edited_secret: document.getElementById('edited_secret'),
     file_on_drive_google_com: document.getElementById('file_on_drive_google_com'),
+    // нижний правый угол - версия
+    service_worker_cache_version: document.getElementById('service_worker_cache_version'),
+    // spinner
+    spinner: document.getElementById('spinner'),
     // таймер
     autosave_in: document.getElementById('autosave_in'),
     //default_PassPhrase
@@ -50,6 +54,8 @@ var app = {
     start_from_keymemo_github_io: ('keymemo.github.io' === window.location.hostname.toString()) ? true : false,
     // таймер обновления времени последнего изменения
     timer_out_update_last_change_list_secrets: 0,
+    // таймер для обновления каждый час каждый
+    timer_every_hour: 0,
     // таймер для скрола
     timer_smooth_scrolling: 0,
     // Задержка для анимации поиска
@@ -87,9 +93,9 @@ app.data_change_diff_now = function (date) {
 app.show_last_change_list_secrets = function () {
     app.last_change_list_secrets.innerHTML = app.data_change_diff_now(app.get_data_change_list_secret());
 
-    // разница между "сейчас" и временем изменения списком секрета
+    // разница между "сейчас" и временем изменения списком секрета в секундах
     function data_diff_last_change() {
-        return (new Date().getTime() - app.data_getTime(app.get_data_change_list_secret())) / 1000;
+        return (app.now() - app.data_getTime(app.get_data_change_list_secret())) / 1000;
     }
 
     // таймер для обновления даты изменения списка секретов
@@ -98,11 +104,12 @@ app.show_last_change_list_secrets = function () {
         setTimeout(function () {
                 app.show_last_change_list_secrets();
 
-                // проверка нет ли более новой версии файла секретов
-                // 1 час
+                // проверка нет ли более новой версии файла секретов каждый час
                 if (!app.isAuthorized && app.isAuthorized_gdrive && data_diff_last_change() > 3600) {
+                    // сброс старого таймера
+                    clearTimeout(app.timer_every_hour)
                     // проверка где новее секрет
-                    setTimeout(
+                    app.timer_every_hour = setTimeout(
                         app.check_where_newer_list_secret,
                         1);
                 }
@@ -150,7 +157,7 @@ app.state0 = async function () {
                 newwindow.close();
                 await select_folder_on_drive_google_com(app.state1);
             } else {
-                document.getElementById('spinner').innerHTML =
+                app.spinner.innerHTML =
                     '<p class="warning_text"><br>' +
                     'You need to allow pop-ups <br>' +
                     'for preserve the secrets need <br>to allow access to drive.google.com.<br><br>' +
@@ -184,13 +191,7 @@ app.state2 = function () {
     timer_autosave_in.init();
     app.online_offline.onclick = app.logout;
     app.online_offline.innerHTML = 'Logout';
-    // версия service worker
-    SW_putt_command("version",
-        function (answer) {
-            console.log("answer: ", answer);
-            document.getElementById("service_worker_cache_version").innerHTML = 'Version:' + answer;
-        }
-    );
+
 }
 
 
@@ -988,7 +989,7 @@ app.recreate_view_secrets = function () {
         // событие для поиска внутри зашифрованных полей
         a.addEventListener('search_in', function (e) {
             const classname = 'hideBlock';
-            const inc_timeout_search_animation = 1;
+            const inc_timeout_search_animation = 10;
 
             function check_classname(classList) {
                 if (classList.match(classname)) {
@@ -1004,7 +1005,6 @@ app.recreate_view_secrets = function () {
                     setTimeout(function () {
                         a.classList.remove(classname);
                     }, app.timeout_search_animation);
-                    app.timeout_search_animation += inc_timeout_search_animation;
                 }
             }
 
@@ -1015,37 +1015,45 @@ app.recreate_view_secrets = function () {
                     setTimeout(function () {
                         a.classList.add(classname);
                     }, app.timeout_search_animation);
-                    app.timeout_search_animation += inc_timeout_search_animation;
                 }
             }
             //console.info("Event is: ", e);
             //console.info("Custom data is: ", e.detail);
-            let search_result;
+            let isFound;
             let array_word = e.detail.array_word;
             if (div_source_secret && array_word.length > 0) {
                 let children = div_source_secret.children;
                 // проверяем наличие каждого слова
                 for (i = 0; i < array_word.length; i++) {
-                    search_result = false;
+                    isFound = false;
                     // по полям секрета
                     for (j = 0; j < children.length; j++) {
                         // текущее поле расшифровываем
                         let current_field = children[j].innerHTML;
                         if (current_field !== '') {
                             let innerHTML = app.decrypt(current_field);
-                            if (innerHTML.toLowerCase().match(array_word[i])) {
+
+                            // экранируем символы
+                            function escape(value) {
+                                return value.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&")
+                            };
+
+                            let array_word_escape = escape(array_word[i]);
+                            //                            console.log('  array_word_escape->' + array_word_escape);
+
+                            if (innerHTML.toLowerCase().match(array_word_escape)) {
                                 //console.log('    частичное совпадение, слово ' + i + ' ->' + array_word[i] + ' поле->' + innerHTML);
-                                search_result = true;
+                                isFound = true;
                                 break;
                             }
                         }
                     }
-                    if (!search_result) {
+                    if (!isFound) {
                         // не было найдено текущее слово - не продолжаем
                         break;
                     }
                 }
-                if (search_result) {
+                if (isFound) {
                     a_show(a);
                 } else {
                     a_hide(a);
@@ -1080,13 +1088,13 @@ app.recreate_view_secrets = function () {
  */
 app.data_now = function () {
     'use strict';
-    let today = new Date(); // сегодняшнеяя дата и время
+    let today = new Date(); // сегодняшняя дата и время
     let curYear = today.getUTCFullYear();
     let curMonth = today.getUTCMonth() + 1;
     if (curMonth < 10) {
         curMonth = '0' + curMonth;
     }
-    let curDay = today.getDate();
+    let curDay = today.getUTCDate();
     if (curDay < 10) {
         curDay = '0' + curDay;
     }
@@ -1109,7 +1117,8 @@ app.data_now = function () {
 };
 
 // формируем из формата "YYYY-MM-DD_HH:MM:SS(UTC)"
-// в количестве миллисекунд
+// на входе дата в формате "YYYY-MM-DD_HH:MM:SS(UTC)"
+// на выходе значение типа Date
 app.data_getTime = function (data) {
     // формируем время в формате "YYYY-MM-DD_HH:MM:SS(UTC)" из полученного
     let Year = data.substr(0, 4);
@@ -1119,17 +1128,29 @@ app.data_getTime = function (data) {
     let Minute = data.substr(14, 2);
     let Seconds = data.substr(17, 2);
 
-    let currentTimeZoneOffsetInHours = new Date().getTimezoneOffset() / 60;
+    // делим дату и время
+    let datas = data.split('_');
+    // выделяем время
+    let date = datas[0].split('-');
+    // выделяем дату
+    let time = datas[1].split('(')[0].split(':');
 
-    let data_in_format = new Date(Year, Month - 1, Day, +Hour - currentTimeZoneOffsetInHours, Minute, Seconds);
+    var data = new Date();
+    data.setUTCFullYear(date[0], date[1] - 1, date[2]);
+    data.setUTCHours(+time[0], time[1], +time[2]);
 
-    return data_in_format.getTime();
+    return data; // в формате "YYYY-MM-DD_HH:MM:SS(UTC)"
 }
 
+app.now = function () {
+    // текущая дата
+    let now = new Date();
+    return now;
+}
 // возвращает текстом разницу между текущим временем и переданным.
 app.data_difference = function (data) {
 
-    let data_diff = (new Date().getTime() - app.data_getTime(data)) / 1000;
+    let data_diff = (app.now().getTime() - app.data_getTime(data).getTime()) / 1000;
 
     // более года 60*60*24*365
     if (data_diff > 31536000) {
@@ -1766,12 +1787,23 @@ app.search_header_input = function () {
             }
         });
         let timer_search = app.timer_search;
+        // задержка для вывода/сокрытия "пачками"
+        let burst_delay = 333; // 1000=1 сек
+        let currentTime = new Date();
         // по всем секретам
         for (i = 0; i < view_secrets_children.length; i++) {
             // начался новый поиск - прекращаем этот
             if (timer_search !== app.timer_search) {
                 break;
             }
+
+            let now = new Date();
+            // если время следующей пачки подошло - назначаем новое время
+            if (currentTime.getMilliseconds() + burst_delay <= now.getMilliseconds()) {
+                currentTime = now;
+
+            }
+            app.timeout_search_animation = currentTime.getMilliseconds() + burst_delay - now.getMilliseconds();
             view_secrets_children[i].childNodes[0].dispatchEvent(search_event);
         }
     }
@@ -2095,6 +2127,12 @@ app.save_to_localStorage = async function () {
     //    folder_on_drive_google_com: '',
     localStorage['welcome_phrase'] = app.welcome_phrase;
 
+    // если serviceWorker существует - сохранияем версию
+    if (navigator.serviceWorker.controller) {
+        localStorage['service_worker_cache_version'] =
+            app.service_worker_cache_version.innerHTML;
+    }
+
     // секреты
     app.save_div_list_secrets_to_localStorage();
 }
@@ -2102,6 +2140,7 @@ app.save_to_localStorage = async function () {
 // загрузка параметров
 app.local_login = function (callback) {
     if (!app.start_from_local_disk) {
+        clearTimeout(app.timer_every_hour);
         app.folder_id_drive_google_com = localStorage['folder_id_drive_google_com'];
         app.welcome_phrase = localStorage['welcome_phrase'];
         // проверка drive.google.com на секреты новее
@@ -2244,14 +2283,14 @@ newInsertFile = async function (base64Data, metadata, callback) {
  * Показать spinner
  */
 app.spinner_show = function () {
-    document.getElementById('spinner').style.display = 'block';
+    app.spinner.style.display = 'block';
 }
 
 /**
  * Скрыть spinner
  */
 app.spinner_none = function () {
-    document.getElementById('spinner').style.display = 'none';
+    app.spinner.style.display = 'none';
 }
 
 //проверка загруженности скрипта gapi
@@ -2280,7 +2319,7 @@ app.remove_local_data = function () {
     document.getElementById('div_autosave_in').innerHTML = 'Need Reload';
     document.getElementById('secrets_and_control_element').innerHTML = '';
     app.spinner_show();
-    document.getElementById('spinner').innerHTML =
+    app.spinner.innerHTML =
         '<p class="warning_text"><br>' +
         'Local data removed.<br><br><br>Reload the page.</p>';
 }
@@ -2307,6 +2346,7 @@ app.unregister_service_worker = function () {
 
 
 
+/*
 function twoWayCommunication() {
     if (navigator.serviceWorker.controller) {
         var messageChannel = new MessageChannel();
@@ -2323,6 +2363,7 @@ function twoWayCommunication() {
         console.log("No active ServiceWorker");
     }
 }
+*/
 
 function SW_putt_command(SW_command, callback) {
     if (navigator.serviceWorker.controller) {
@@ -2335,22 +2376,46 @@ function SW_putt_command(SW_command, callback) {
         //        console.log("SW-> recieved");
         navigator.serviceWorker.controller.postMessage({
             "command": SW_command,
-            "message": "Hi, SW"
+            "message": "Hi, test"
         }, [messageChannel.port2]);
+        return true;
     } else {
         console.log("No active ServiceWorker");
         callback("No active ServiceWorker");
+        return false;
     }
 }
 
 
-setTimeout(function () {
-        SW_putt_command("version",
+app.chech_version_service_worker = function () {
+    if (navigator.serviceWorker.controller) {
+        SW_putt_command("get_version_soft",
             function (answer) {
                 console.log("answer: ", answer);
-                document.getElementById("service_worker_cache_version").innerHTML = 'Version soft:' + answer;
+
+                if (answer != "") {
+                    // Если нет записи в localStorage
+                    if (localStorage['service_worker_cache_version']) {
+                        // если онлайн версия новее
+                        if (answer > localStorage['service_worker_cache_version']) {
+                            console.log("New version");
+                            document.getElementById("service_worker_cache_version_title").innerHTML = 'New version:';
+                            app.service_worker_cache_version.classList.add('service_worker_cache_version_alert');
+                        } else {
+                            app.service_worker_cache_version.innerHTML = answer;
+                        }
+                    }
+                    // ссылка на комиты
+                    app.service_worker_cache_version.innerHTML =
+                        '<a href="https://github.com/keymemo/keymemo.github.io/commits/" target="_blank">' + answer + '</a>';
+                    localStorage['service_worker_cache_version'] = answer;
+                }
             }
         );
-    },
-    5000
-);
+    } else {
+        console.log("Iteration");
+        setTimeout(app.chech_version_service_worker,
+            1000);
+    }
+
+}
