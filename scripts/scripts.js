@@ -1656,10 +1656,15 @@ app.edit_secret = function (source_div, link_on_secret) {
                             app.div_edited_secret.innerHTML = '';
                             app.div_edited_secret.style.display = 'none';
                             link_on_secret.parentNode.remove();
+
+                            // необходимо сохратить
+                            need_save_secret = true;
+
+                            // обновляем "последнее изменение" списка секретов
+                            app.last_change_set(app.div_list_secrets);
                             app.recreate_view_secrets();
                         }, 1000);
                     });
-
                 app.div_edited_secret.appendChild(remove);
             }
         }
