@@ -22,32 +22,42 @@ function state() {
             // ссылка в заголовке
             app.header_link.style.display = 'block';
             // надписть в заголовке
-            app.header_input.placeholder = 'KeyMemo';
+            app.header_input_placeholder.textContent = 'KeyMemo';
 
-            app.header_input.type = 'search';
+            app.header_input.type = 'text';
             // ширина поля input в заголовке
             app.header_input_div.style.marginLeft = 140;
             // кнопка ⧖ ☓
             app.header_button.innerHTML = '☓';
             // обработка Enter
-            app.header_input.onkeyup = app.keyEnter;
+            app.header_input.onkeyup = app.onkeyup;
         },
         state1: function () {
             app.header_link.style.display = 'block';
-            app.header_input.placeholder = 'Enter pass pharse';
+            app.header_input_placeholder.textContent = 'Enter pass phrase';
             app.header_input.type = 'password';
             app.header_input_div.style.marginLeft = 140;
             app.header_button.innerHTML = '⊳';
             app.header_button.onclick = set_passphrase;
+            // обработка ввода для определения раскаладки и Caps Lock
+            app.header_input.onkeypress = app.keypress;
         },
         state2: function () {
             app.header_link.style.display = 'none';
-            app.header_input.placeholder = 'Search';
+            app.header_input_placeholder.textContent = 'Search';
             app.header_input.type = 'Search';
             app.header_input_div.style.marginLeft = 0;
             app.header_button.onclick = menuButton;
             app.header_input.onkeyup = app.search_header_input;
             app.header_input.onsearch = app.search_header_input;
+            // отключение обработки ввода
+            app.header_input.onkeypress = undefined;
+            app.header_input.classList.remove('input_keyboardLayout');
+            // inbox_label
+            app.header_input_placeholder.classList.remove('inbox_label');
+            void app.header_input_placeholder.offsetWidth;
+//            app.header_input_placeholder.offsetWidth = app.header_input_placeholder.offsetWidth;
+            app.header_input_placeholder.classList.add('inbox_label');
 
             // если запуск с локального диска
             if (app.start_from_local_disk) {
@@ -59,7 +69,7 @@ function state() {
                 document.getElementById('headerButton').style.display = 'none';
             } else {
                 app.header_button.innerHTML = '≣';
-                app.isAuthorized=true;
+                app.isAuthorized = true;
             }
         }
     }

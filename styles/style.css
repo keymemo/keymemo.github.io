@@ -45,6 +45,7 @@
 .col2 {
     background: #E0D2C7;
     margin: 0 45px 0 75px;
+    position: relative;
 }
 
 .col3 {
@@ -55,9 +56,8 @@
 
 .header_input {
     width: 100%;
-    font-size: 23px;
+    font-size: 150%;
     border: none;
-    margin-right: 35px;
 }
 
 
@@ -66,7 +66,9 @@
 .text_input,
 .input_focus_on,
 .input_focus_off,
-.copied {
+.copied,
+.keyboardLayout,
+label {
     font-weight: bold;
     font-size: 120%;
 }
@@ -107,59 +109,64 @@
 
 
 /*мигани при копировании*/
-
 .copied {
-    -webkit-animation-name: blinker;
-    -webkit-animation-duration: 0.2s;
-    -webkit-animation-timing-function: linear;
-    -webkit-animation-iteration-count: 1;
-    -moz-animation-name: blinker;
-    -moz-animation-duration: 0.2s;
-    -moz-animation-timing-function: linear;
-    -moz-animation-iteration-count: 1;
-    animation-name: blinker;
-    animation-duration: 0.2s;
-    animation-timing-function: linear;
-    animation-iteration-count: 1;
-    color: red;
+ -webkit-animation: animation-in 0.45s ease-out;
+ -moz-animation: animation-in 0.45s ease-out;
+ animation: animation-in 0.45s ease-out;
 }
 
-@-moz-keyframes blinker {
-    0% {
-        opacity: 1.0;
-    }
-    50% {
-        opacity: 0.3;
-    }
-    100% {
-        opacity: 1.0;
-    }
-}
+@-webkit-keyframes animation-in {
+ 0% {
+ -webkit-transform: scale(1);
+ }
 
-@-webkit-keyframes blinker {
-    0% {
-        opacity: 1.0;
-    }
-    50% {
-        opacity: 0.3;
-    }
-    100% {
-        opacity: 1.0;
-    }
-}
+ 66% {
+ -webkit-transform: scale(0.9);
+ }
 
-@keyframes blinker {
-    0% {
-        opacity: 1.0;
-    }
-    50% {
-        opacity: 0.3;
-    }
-    100% {
-        opacity: 1.0;
-    }
+ 100% {
+ -webkit-transform: scale(1);
+ }
 }
+@-moz-keyframes animation-in {
+ 0% {
+ -moz-transform: scale(1);
+ }
 
+ 66% {
+ -moz-transform: scale(0.9);
+ }
+
+ 100% {
+ -moz-transform: scale(1);
+ }
+}
+@-o-keyframes animation-in {
+ 0% {
+ -o-transform: scale(1);
+ }
+
+ 66% {
+ -o-transform: scale(0.9);
+ }
+
+ 100% {
+ -o-transform: scale(1);
+ }
+}
+@keyframes animation-in {
+ 0% {
+ transform: scale(1);
+ }
+
+ 66% {
+ transform: scale(0.9);
+ }
+
+ 100% {
+ transform: scale(1);
+ }
+}
 
 /*текст элементов управления*/
 
@@ -1270,4 +1277,49 @@ hr {
     border: 0px;
     width: 0;
     transition: all .3s ease-in-out;
+}
+
+.inbox_label {
+    left: 10px;
+    color: red;
+    position: absolute;
+    pointer-events: none;
+    top: 0px;
+    text-align: right;
+    transition: 2s ease all;
+    margin-top: auto;
+    margin-bottom: auto;
+    font-size: 150%;
+    font-style: italic;
+    font-family: 'Helvetica', Arial, Lucida Grande, sans-serif !important;
+
+}
+
+.header_input:focus ~ #header_input_placeholder,
+.header_input:valid ~ #header_input_placeholder {
+    color: white;
+    font-size: 80%;
+    top: -0.7em;
+    line-height: 0.7;
+    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+}
+
+.input_keyboardLayout:focus ~ .keyboardLayout {
+    display: block;
+}
+
+.keyboardLayout {
+    position: absolute;
+    pointer-events: none;
+    /* красивости... */
+    text-align: center;
+    font-size: 80%;
+    font-style: italic;
+    color: red;
+    display: none;
+    left: 10px;
+    top: 2.2em;
+    line-height: 0.9;
+    font-family: 'Helvetica', Arial, Lucida Grande, sans-serif !important;
+    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
 }

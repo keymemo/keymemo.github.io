@@ -48,6 +48,9 @@ var app = {
     select_secrets_and_control_elements: document.getElementById('select_secrets_and_control_elements'),
     import_from_keymemo_com_button: document.getElementById('import_from_keymemo_com_button'),
 
+    keyboardLayout: document.getElementById('keyboardLayout'),
+    capsLockState: document.getElementById('capsLockState'),
+    header_input_placeholder: document.getElementById('header_input_placeholder'),
     // если запуск с локального диска - возвращем true
     start_from_local_disk: ('file:' === window.location.protocol.toString()) ? true : false,
     // если запускаемся с keymemo.github.io - возвращаем true
@@ -1750,13 +1753,37 @@ app.edit_secret = function (source_div, link_on_secret) {
     document.getElementById('SecretName').focus();
 };
 
-// обработка Enter как нажатия на кнопку
-app.keyEnter = function (event) {
+app.onkeyup = function (event) {
+    // обработка Enter как нажатия на кнопку
     if (event.keyCode === 13) {
         set_passphrase();
     }
 }
 
+app.keypress = function (event) {
+    function check_layout(e) {
+        let key = e.key;
+        let capsLockEnabled = e.getModifierState && e.getModifierState('CapsLock');
+        let layout = 'non En';
+        let RegEx = new RegExp('[\\w\\s]');
+
+        // ловим английские буквы
+        if (RegEx.test(key)) {
+            layout = 'en';
+        }
+
+        // ловим CapsLock
+        if (capsLockEnabled) {
+            layout = layout + ', ' + 'Caps Lock';
+        }
+
+        if (layout) {
+            app.keyboardLayout.innerHTML = layout;
+        }
+    };
+
+    check_layout(event);
+}
 // поиск в соответствии с header_input
 app.search_header_input = function () {
     // поиск по всем полям секретов, ненайденные скрываются.
