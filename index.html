@@ -29,7 +29,6 @@
 
     <!--таймер логаута-->
     <div>
-
         <div id='div_autosave_in' class="text_controls_element ">
             Autosave through:
             <b><span  id='autosave_in' >undefined</span> </b>min.
@@ -144,7 +143,7 @@
                     <button id="headerButton" class="Button">☓</button>
                 </div>
                 <div class="col2" id="header_input_div">
-                    <input class="header_input input_keyboardLayout" type="text" required id="header_input" autofocus placeholder="" autocomplete="new-password" name="fakenameremembered"  />
+                    <input class="header_input input_keyboardLayout" type="text" required id="header_input" autocomplete="new-password" name="fakenameremembered" />
                     <label class="inbox_label" id="header_input_placeholder" for="header_input">Initialization</label>
                     <div class="keyboardLayout" id="keyboardLayout" hidden=""></div>
                 </div>
@@ -199,6 +198,16 @@
                     <div class="cssload-loader"></div>
                 </div>
             </div>
+
+            <!--Страница с описанием приложения и необходимых разрешений    -->
+            <div id='description_and_permissions' class="div_full_screen_inner warning_text" hidden="">
+                You need to allow pop-ups <br> for preserve the secrets need <br>to allow access to drive.google.com.<br><br>
+                <a href="javascript:history.go(0)" class="warning_text">Reload page</a>
+                <p>Менеджер для хранения паролей.<br> Файл с секретами хранится на drive.google.com<br> Файл с секретами шифруется алгоритмом AES.<br> Есть офлайн версия для резервного копирования.<br> Только чистый javascript, никаких внешних ссылок.<br>
+                </p>
+                <a href="https://github.com/keymemo/keymemo.github.io/blob/master/README.md" target="_blank" class="link_external" style="text-align: center; display: block;"><br>Read more...<br></a></p>
+            </div>
+
 
             <!--секреты-->
             <div id="div_list_secrets" data-lastchange="1970-00-00_00:00:00(UTC)" hidden="">
@@ -316,7 +325,6 @@
                 }
                 app.state0();
             }
-
         </script>
 </body>
 

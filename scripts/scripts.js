@@ -160,12 +160,7 @@ app.state0 = async function () {
                 newwindow.close();
                 await select_folder_on_drive_google_com(app.state1);
             } else {
-                app.spinner.innerHTML =
-                    '<p class="warning_text"><br>' +
-                    'You need to allow pop-ups <br>' +
-                    'for preserve the secrets need <br>to allow access to drive.google.com.<br><br>' +
-                    '<a href="javascript:history.go(0)" class="warning_text">Reload page</a>' +
-                    '<a href="https://github.com/keymemo/keymemo.github.io/blob/master/README.md" target="_blank" class="link_external" style="text-align: center; display: block;"><br>Read more...<br></a></p>';
+                document.getElementById('description_and_permissions').style.display = 'inline-block';
             }
         }
 }
@@ -1344,7 +1339,6 @@ app.edit_secret = function (source_div, link_on_secret) {
             } else {
                 element_del.className = 'remove_not_active';
             }
-            element_del.attributes.href = '#del_' + value;
             element_del.innerHTML = '×';
             // удаление записи
             element_del.addEventListener('click',
@@ -1425,7 +1419,6 @@ app.edit_secret = function (source_div, link_on_secret) {
         } else {
             element_copy.className = 'buton_copy_not_active';
         }
-        element_copy.setAttribute('href', '#copy');
         // копируем содержимое поле ввода по нажатию на Copy
         element_copy.addEventListener('click',
             function () {

@@ -109,63 +109,67 @@ label {
 
 
 /*мигани при копировании*/
+
 .copied {
- -webkit-animation: animation-in 0.45s ease-out;
- -moz-animation: animation-in 0.45s ease-out;
- animation: animation-in 0.45s ease-out;
+    -webkit-animation: animation-in 0.45s ease-out;
+    -moz-animation: animation-in 0.45s ease-out;
+    animation: animation-in 0.45s ease-out;
 }
 
 @-webkit-keyframes animation-in {
- 0% {
- -webkit-transform: scale(1);
- }
+    0% {
+        -webkit-transform: scale(1);
+    }
 
- 66% {
- -webkit-transform: scale(0.9);
- }
+    66% {
+        -webkit-transform: scale(0.9);
+    }
 
- 100% {
- -webkit-transform: scale(1);
- }
+    100% {
+        -webkit-transform: scale(1);
+    }
 }
+
 @-moz-keyframes animation-in {
- 0% {
- -moz-transform: scale(1);
- }
+    0% {
+        -moz-transform: scale(1);
+    }
 
- 66% {
- -moz-transform: scale(0.9);
- }
+    66% {
+        -moz-transform: scale(0.9);
+    }
 
- 100% {
- -moz-transform: scale(1);
- }
+    100% {
+        -moz-transform: scale(1);
+    }
 }
+
 @-o-keyframes animation-in {
- 0% {
- -o-transform: scale(1);
- }
+    0% {
+        -o-transform: scale(1);
+    }
 
- 66% {
- -o-transform: scale(0.9);
- }
+    66% {
+        -o-transform: scale(0.9);
+    }
 
- 100% {
- -o-transform: scale(1);
- }
+    100% {
+        -o-transform: scale(1);
+    }
 }
+
 @keyframes animation-in {
- 0% {
- transform: scale(1);
- }
+    0% {
+        transform: scale(1);
+    }
 
- 66% {
- transform: scale(0.9);
- }
+    66% {
+        transform: scale(0.9);
+    }
 
- 100% {
- transform: scale(1);
- }
+    100% {
+        transform: scale(1);
+    }
 }
 
 /*текст элементов управления*/
@@ -190,7 +194,7 @@ label {
     /*запрет выделения мышью*/
     -moz-user-select: none;
     -webkit-user-select: none;
-    cursor: default;
+    cursor: pointer;
 }
 
 .label0 {
@@ -624,28 +628,32 @@ body {
 
 /*            z-index: 994;*/
 
-
 }
 
 /* ============================================================
   COMMON
 ============================================================ */
+
 #wrapper {
     min-width: 600px;
 }
+
 .settings {
     display: table;
     width: 100%;
 }
+
 .settings .row {
     display: table-row;
 }
+
 .settings .question,
 .settings .switch {
     display: table-cell;
     vertical-align: middle;
     padding: 10px;
 }
+
 .settings .question {
     width: 600px;
     font-family: "Roboto Slab", serif;
@@ -655,12 +663,14 @@ body {
 /* ============================================================
   COMMON
 ============================================================ */
+
 .cmn-toggle {
     position: absolute;
     margin-left: -9999px;
     visibility: hidden;
 }
-.cmn-toggle+label {
+
+.cmn-toggle + label {
     display: block;
     position: relative;
     cursor: pointer;
@@ -674,7 +684,8 @@ body {
 /* ============================================================
   SWITCH 1 - ROUND
 ============================================================ */
-input.cmn-toggle-round+label {
+
+input.cmn-toggle-round + label {
     padding: 2px;
     width: 120px;
     height: 60px;
@@ -685,8 +696,9 @@ input.cmn-toggle-round+label {
     -o-border-radius: 60px;
     border-radius: 60px;
 }
-input.cmn-toggle-round+label:before,
-input.cmn-toggle-round+label:after {
+
+input.cmn-toggle-round + label:before,
+input.cmn-toggle-round + label:after {
     display: block;
     position: absolute;
     top: 1px;
@@ -694,7 +706,8 @@ input.cmn-toggle-round+label:after {
     bottom: 1px;
     content: "";
 }
-input.cmn-toggle-round+label:before {
+
+input.cmn-toggle-round + label:before {
     right: 1px;
     background-color: #f1f1f1;
     -webkit-border-radius: 60px;
@@ -707,7 +720,8 @@ input.cmn-toggle-round+label:before {
     -o-transition: background 0.4s;
     transition: background 0.4s;
 }
-input.cmn-toggle-round+label:after {
+
+input.cmn-toggle-round + label:after {
     width: 58px;
     background-color: #fff;
     -webkit-border-radius: 100%;
@@ -723,17 +737,20 @@ input.cmn-toggle-round+label:after {
     -o-transition: margin 0.4s;
     transition: margin 0.4s;
 }
-input.cmn-toggle-round:checked+label:before {
+
+input.cmn-toggle-round:checked + label:before {
     background-color: #8ce196;
 }
-input.cmn-toggle-round:checked+label:after {
+
+input.cmn-toggle-round:checked + label:after {
     margin-left: 60px;
 }
 
 /* ============================================================
   SWITCH 2 - ROUND FLAT
 ============================================================ */
-input.cmn-toggle-round-flat+label {
+
+input.cmn-toggle-round-flat + label {
     padding: 2px;
     width: 120px;
     height: 60px;
@@ -748,13 +765,15 @@ input.cmn-toggle-round-flat+label {
     -o-transition: background 0.4s;
     transition: background 0.4s;
 }
-input.cmn-toggle-round-flat+label:before,
-input.cmn-toggle-round-flat+label:after {
+
+input.cmn-toggle-round-flat + label:before,
+input.cmn-toggle-round-flat + label:after {
     display: block;
     position: absolute;
     content: "";
 }
-input.cmn-toggle-round-flat+label:before {
+
+input.cmn-toggle-round-flat + label:before {
     top: 2px;
     left: 2px;
     bottom: 2px;
@@ -770,7 +789,8 @@ input.cmn-toggle-round-flat+label:before {
     -o-transition: background 0.4s;
     transition: background 0.4s;
 }
-input.cmn-toggle-round-flat+label:after {
+
+input.cmn-toggle-round-flat + label:after {
     top: 4px;
     left: 4px;
     bottom: 4px;
@@ -786,10 +806,12 @@ input.cmn-toggle-round-flat+label:after {
     -o-transition: margin 0.4s, background 0.4s;
     transition: margin 0.4s, background 0.4s;
 }
-input.cmn-toggle-round-flat:checked+label {
+
+input.cmn-toggle-round-flat:checked + label {
     background-color: #8ce196;
 }
-input.cmn-toggle-round-flat:checked+label:after {
+
+input.cmn-toggle-round-flat:checked + label:after {
     margin-left: 60px;
     background-color: #8ce196;
 }
@@ -797,13 +819,15 @@ input.cmn-toggle-round-flat:checked+label:after {
 /* ============================================================
   SWITCH 3 - YES NO
 ============================================================ */
-input.cmn-toggle-yes-no+label {
+
+input.cmn-toggle-yes-no + label {
     padding: 2px;
     width: 60px;
     height: 60px;
 }
-input.cmn-toggle-yes-no+label:before,
-input.cmn-toggle-yes-no+label:after {
+
+input.cmn-toggle-yes-no + label:before,
+input.cmn-toggle-yes-no + label:after {
     display: block;
     position: absolute;
     top: 0;
@@ -818,7 +842,8 @@ input.cmn-toggle-yes-no+label:after {
     text-align: center;
     line-height: 60px;
 }
-input.cmn-toggle-yes-no+label:before {
+
+input.cmn-toggle-yes-no + label:before {
     background-color: #dddddd;
     content: attr(data-off);
     -webkit-transition: -webkit-transform 0.5s;
@@ -831,7 +856,8 @@ input.cmn-toggle-yes-no+label:before {
     -o-backface-visibility: hidden;
     backface-visibility: hidden;
 }
-input.cmn-toggle-yes-no+label:after {
+
+input.cmn-toggle-yes-no + label:after {
     background-color: #8ce196;
     content: attr(data-on);
     -webkit-transition: -webkit-transform 0.5s;
@@ -849,23 +875,27 @@ input.cmn-toggle-yes-no+label:after {
     -o-backface-visibility: hidden;
     backface-visibility: hidden;
 }
-input.cmn-toggle-yes-no:checked+label:before {
+
+input.cmn-toggle-yes-no:checked + label:before {
     -webkit-transform: rotateY(180deg);
     -moz-transform: rotateY(180deg);
     -ms-transform: rotateY(180deg);
     -o-transform: rotateY(180deg);
     transform: rotateY(180deg);
 }
-input.cmn-toggle-yes-no:checked+label:after {
+
+input.cmn-toggle-yes-no:checked + label:after {
     -webkit-transform: rotateY(0);
     -moz-transform: rotateY(0);
     -ms-transform: rotateY(0);
     -o-transform: rotateY(0);
     transform: rotateY(0);
 }
+
 #field_insert {
     width: 80px;
 }
+
 #waiting_with_the_log {
     position: absolute;
     left: 0vw;
@@ -879,6 +909,7 @@ input.cmn-toggle-yes-no:checked+label:after {
     /*    min-width: 300px;
             max-width: 700px;*/
 }
+
 progress {
     display: block;
     color: red;
@@ -895,9 +926,9 @@ progress {
     font-family: sans-serif;
     text-align: center;
 }
+
 .progress-bar {
     /*    position: fixed;*/
-
     padding: 3px;
     border-radius: 6px;
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, .2);
@@ -909,15 +940,14 @@ progress {
     left: 0;
     background-color: white;
     /* центрирование */
-
     margin: auto;
     /* центрирование */
-
     height: 3em;
     min-width: 280px;
     max-width: 530px;
     z-index: 6;
 }
+
 .headerButton {
     width: 24px;
     height: 24px;
@@ -931,15 +961,18 @@ progress {
     outline: none;
     cursor: pointer;
 }
+
 .Button {
     cursor: pointer;
     vertical-align: middle;
     font-size: 1.2em;
 }
+
 img {
     width: 32px;
     vertical-align: middle;
 }
+
 .forms {
     position: fixed;
     top: 0;
@@ -957,36 +990,38 @@ img {
     text-align: center;
     width: 310px;
 }
+
 #import_keymemo_com {
     height: 90px;
 }
+
 #form_ath_to_folder_with_secret {
     height: 50px;
 }
+
 .btn {
     background: #3F51B5;
     /* Синий цвет фона */
-
     color: white;
     /* Белые буквы */
     /*    padding: 1em;*/
 }
+
 .label0 {
     /*    text-align: center;*/
 }
+
 hr {
     border: none;
     /* Убираем границу */
-
     background-color: #3F51B5;
     /* Цвет линии */
-
     color: #3F51B5;
     /* Цвет линии для IE6-7 */
-
     height: 1px;
     /* Толщина линии */
 }
+
 .floater-inner {
     position: absolute;
     top: 0;
@@ -996,28 +1031,31 @@ hr {
     border-radius: 10px;
     background-color: white;
     /* центрирование */
-
     margin: auto;
     /* центрирование */
-
     height: 13em;
     width: 320px;
     border: 1px solid black;
     /*    padding: 5px 5px 5px 55px;*/
 }
+
 #floater_inner_settings {
     height: 25em;
 }
+
 #import_from_keymemo_com_login {
     width: 13em;
 }
+
 #import_from_keymemo_com_password {
     width: 12em;
 }
+
 .removed_secret {
     display: none;
     opacity: 0;
 }
+
 #edited_secret {
     position: fixed;
     left: 0vw;
@@ -1026,24 +1064,30 @@ hr {
     bottom: 0vh;
     opacity: 0.98;
 }
+
 .hidden {
     transition: all 0.5s ease-in-out;
     transform: scale(1, 0);
 }
+
 .hidden_secret {
     transition: all 0.5s ease-in-out;
     transform: scale(0, 1);
 }
+
 .visible_secret {
     transition: all 0.5s ease-in-out;
     transform: scale(0.00, 1.5);
 }
+
 #new_passphrase_input {
     width: 12em;
 }
+
 #input_import_from_keymemo_com {
     width: 12em;
 }
+
 #progress_bar_fill {
     display: block;
     height: 1.5em;
@@ -1051,6 +1095,7 @@ hr {
     border-radius: 3px;
     transition: width 10ms ease-in-out;
 }
+
 .log-files {
     padding: 4px;
     border-radius: 6px;
@@ -1071,45 +1116,52 @@ hr {
     z-index: 6;
     display: block;
 }
+
 #div_progress-bar_fill {
     top: 3em;
     top: 0em;
     height: 1.5em;
     margin-bottom: -2em;
 }
+
 #log-files {
     overflow-y: scroll;
     overflow-x: hidden;
 }
+
 .lastChange_secret_title {
     font-size: 0.8em;
     float: left;
     text-align: left;
 }
+
 .service_worker_cache_version {
     /*    добавить отступ справа на ширину прокрутки*/
-
     cursor: default;
     font-size: 0.8em;
-/*    float: right;*/
-/*    display: table-cell;*/
+    /*    float: right;*/
+    /*    display: table-cell;*/
     position: fixed;
     bottom: 0em;
     right: 0em;
 }
+
 .service_worker_cache_version_alert {
     color: red !important;
     cursor: pointer;
 }
+
 #lastChange_secrets,
 #last_change_list_secrets {
     color: red;
     font-size: 1.2em;
 }
+
 #div_exit_through {
     padding: 0;
     margin: 0;
 }
+
 .autosave_in {
     -webkit-transition: all 1.5s ease;
     -webkit-transition-delay: 0.5s;
@@ -1117,6 +1169,7 @@ hr {
     transform: rotate(+270deg);
     direction: rtl;
 }
+
 .autosave_in_alarm {
     writing-mode: tb-rl;
     transform: rotate(-90deg);
@@ -1124,6 +1177,7 @@ hr {
     -webkit-transition: all 1.5s ease;
     -webkit-transition-delay: 0.5s;
 }
+
 .loader {
     left: 50%;
     top: 50%;
@@ -1131,12 +1185,14 @@ hr {
     -webkit-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
 }
+
 #above_the_title_top_right {
     float: left;
     color: red;
     font-weight: bold;
     cursor: pointer;
 }
+
 @keyframes rotation_logo_drive {
     from {
         transform: rotateY(0deg);
@@ -1146,19 +1202,23 @@ hr {
         transform: rotateY(360deg);
     }
 }
+
 .logo_drive,
 .logo_drive_rotation {
     position: fixed;
     bottom: 0em;
     left: 0em;
 }
+
 .logo_drive {
     animation: 2s rotation_logo_drive ease-out +1;
 }
+
 .logo_drive_rotation {
     animation: 2s rotation_logo_drive ease +10;
     transform: scale(1, 0);
 }
+
 #div_autosave_in {
     font-size: 0.9em;
     font-weight: normal;
@@ -1166,6 +1226,7 @@ hr {
 }
 
 /* <spinner>*/
+
 .wrapper {
     position: fixed;
     bottom: 0em;
@@ -1173,6 +1234,7 @@ hr {
     margin: auto;
     display: block;
 }
+
 .cssload-loader {
     margin: auto;
     top: 0;
@@ -1184,11 +1246,11 @@ hr {
     height: 106px;
     border-radius: 50%;
     /*		margin: 6em;*/
-
     display: inline-block;
     vertical-align: middle;
     background: rgb(47, 59, 162);
 }
+
 .cssload-loader,
 .cssload-loader:before,
 .cssload-loader:after {
@@ -1198,6 +1260,7 @@ hr {
     -webkit-animation: 1.45s infinite ease-in-out;
     -moz-animation: 1.45s infinite ease-in-out;
 }
+
 .cssload-loader:before,
 .cssload-loader:after {
     width: 100%;
@@ -1207,6 +1270,7 @@ hr {
     top: 0;
     left: 0;
 }
+
 .cssload-loader {
     animation-name: cssload-loader;
     -o-animation-name: cssload-loader;
@@ -1214,6 +1278,7 @@ hr {
     -webkit-animation-name: cssload-loader;
     -moz-animation-name: cssload-loader;
 }
+
 @keyframes cssload-loader {
     from {
         transform: scale(0);
@@ -1225,6 +1290,7 @@ hr {
         opacity: 0;
     }
 }
+
 @-o-keyframes cssload-loader {
     from {
         -o-transform: scale(0);
@@ -1236,6 +1302,7 @@ hr {
         opacity: 0;
     }
 }
+
 @-ms-keyframes cssload-loader {
     from {
         -ms-transform: scale(0);
@@ -1247,6 +1314,7 @@ hr {
         opacity: 0;
     }
 }
+
 @-webkit-keyframes cssload-loader {
     from {
         -webkit-transform: scale(0);
@@ -1258,6 +1326,7 @@ hr {
         opacity: 0;
     }
 }
+
 @-moz-keyframes cssload-loader {
     from {
         -moz-transform: scale(0);
@@ -1269,6 +1338,7 @@ hr {
         opacity: 0;
     }
 }
+
 .hideBlock {
     font-size: 0%;
     margin-top: 0;
