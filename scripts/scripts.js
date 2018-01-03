@@ -5,6 +5,8 @@ var GeneratedPassword = '';
 
 // количество нажатий на ESC для logout
 let default_esc_number_press_to_out = 4;
+// количество нажатий Enter при неправильно ввевденной passphrase
+let default_enter_number_press_to_in = 4;
 
 //Состояние приложения
 var app = {
@@ -12,14 +14,19 @@ var app = {
     isAuthorized: false,
     // авторизован на google drive
     isAuthorized_gdrive: false,
-    // идет проверка "есть ли списрк новее"
+    // идет проверка "есть ли список новее"
     isCheck_where_newer_list_secret: true,
-    // было изменение
-    need_save: false,
+    // было изменение - необходимо сохранить
+    need_save_value: false,
+
     // id папки на drive.google.com
     folder_id_drive_google_com: localStorage['folder_id_drive_google_com'],
-    //
-    welcome_phrase: localStorage['welcome_phrase'],
+    // в хранилище
+    welcome_phrase,
+    // в настройках
+    new_welcome_phrase_element: document.getElementById('new_welcome_phrase'),
+    enter_number_press_to_in: 0,
+
     // список секретов
     div_list_secrets: document.getElementById('div_list_secrets'),
     // ** интерфейс **
@@ -39,7 +46,7 @@ var app = {
     // spinner
     spinner: document.getElementById('spinner'),
     // таймер
-    autosave_in: document.getElementById('autosave_in'),
+    autosave_in_element: document.getElementById('autosave_in'),
     //default_PassPhrase
     passPhrase: '',
     // div список секретов
@@ -48,8 +55,8 @@ var app = {
     select_secrets_and_control_elements: document.getElementById('select_secrets_and_control_elements'),
     import_from_keymemo_com_button: document.getElementById('import_from_keymemo_com_button'),
 
-    keyboardLayout: document.getElementById('keyboardLayout'),
-    capsLockState: document.getElementById('capsLockState'),
+    keyboardLayout_element: document.getElementById('keyboardLayout'),
+    //    capsLockState: document.getElementById('capsLockState'),
     header_input_placeholder: document.getElementById('header_input_placeholder'),
     // если запуск с локального диска - возвращем true
     start_from_local_disk: ('file:' === window.location.protocol.toString()) ? true : false,
@@ -65,8 +72,17 @@ var app = {
     timeout_search_animation: 0,
     // таймер поиска
     timer_search: 0,
+    // круговая диаграммы для отсчета минуты
+    pie_element: document.getElementById('pie'),
+    // таймер обратного отсчета
+    timer_div_element: document.getElementById('timer_div'),
 };
 
+// необходимо сохранение
+app.need_save = function () {
+    app.need_save_value = true;
+    app.online_offline.innerHTML = 'Need SAVE!!!';
+}
 
 // ctrl-f отменяет стандартный поиск и переносит фокус на поле ввода
 window.addEventListener("keydown", function (e) {
@@ -481,11 +497,28 @@ app.changePassPhrase = function () {
             }
         }
     }
-    //    app.div_list_secrets.innerHTML = '';
+
     app.div_list_secrets.innerHTML = new_list_secret.innerHTML;
 
-    app.need_save = true;
+    app.need_save();
     app.logout();
+}
+
+/**
+ * Меняем welcome_phrase на новую
+ */
+app.change_welcome_phrase = function () {
+    'use strict';
+    if (app.new_welcome_phrase_element.value == "") {
+        app.new_welcome_phrase_element.value = "KeyMemo.NEXT";
+    }
+    // если фраза изменилась
+    if (app.welcome_phrase != app.new_welcome_phrase_element.value) {
+        app.welcome_phrase = app.new_welcome_phrase_element.value;
+        document.getElementById('welcome_phrase').innerHTML = app.welcome_phrase;
+        app.need_save();
+    }
+    app.div_settings.style.display = 'none';
 }
 
 
@@ -815,7 +848,6 @@ String.prototype.b64decode = function () {
  * возвращает самый новый файл из папки
  */
 async function select_folder_on_drive_google_com(callback) {
-    //    request_state.start();
     window.setTimeout(
         function () {
             // Use the API Loader script to load google.picker and gapi.auth.
@@ -1007,7 +1039,6 @@ app.recreate_view_secrets = function () {
             }
 
             function a_hide(a) {
-                //                a.classList.add('hideBlock');
                 const classList = a.classList.toString();
                 if (!check_classname(classList)) {
                     setTimeout(function () {
@@ -1070,11 +1101,6 @@ app.recreate_view_secrets = function () {
 
     // дата последнего изменения списка секретов
     app.show_last_change_list_secrets();
-
-    //
-    if (app.need_save) {
-        app.online_offline.innerHTML = 'Need SAVE!!!';
-    }
 
     app.clear_view_secrets();
     app.div_view_secrets.appendChild(fragment);
@@ -1747,6 +1773,7 @@ app.edit_secret = function (source_div, link_on_secret) {
 };
 
 app.onkeyup = function (event) {
+    document.getElementById('welcome_phrase').innerHTML = "";
     // обработка Enter как нажатия на кнопку
     if (event.keyCode === 13) {
         set_passphrase();
@@ -1771,7 +1798,7 @@ app.keypress = function (event) {
         }
 
         if (layout) {
-            app.keyboardLayout.innerHTML = layout;
+            app.keyboardLayout_element.innerHTML = layout;
         }
     };
 
@@ -1783,6 +1810,9 @@ app.search_header_input = function () {
     function search_secrets() {
         'use strict';
         let i;
+
+        //сохраняем текущий поиск
+        let timer_search = app.timer_search;
 
         app.timeout_search_animation = 0;
 
@@ -1811,7 +1841,7 @@ app.search_header_input = function () {
                 array_word: words
             }
         });
-        let timer_search = app.timer_search;
+
         // задержка для вывода/сокрытия "пачками"
         let burst_delay = 333; // 1000=1 сек
         let currentTime = new Date();
@@ -1819,6 +1849,7 @@ app.search_header_input = function () {
         for (i = 0; i < view_secrets_children.length; i++) {
             // начался новый поиск - прекращаем этот
             if (timer_search !== app.timer_search) {
+//                console.log("search BREAK, app.timer_search=",app.timer_search," timer_search=",timer_search);
                 break;
             }
 
@@ -1831,10 +1862,12 @@ app.search_header_input = function () {
             app.timeout_search_animation = currentTime.getMilliseconds() + burst_delay - now.getMilliseconds();
             view_secrets_children[i].childNodes[0].dispatchEvent(search_event);
         }
+//        console.log("search end, app.timer_search=",app.timer_search," timer_search=",timer_search);
     }
 
     clearTimeout(app.timer_search);
     app.timer_search = setTimeout(search_secrets, 300);
+//    console.log("NEW search, app.timer_search=",app.timer_search," header_input.value=",app.header_input.value);
 
 };
 
@@ -1845,7 +1878,7 @@ app.search_header_input = function () {
  */
 app.last_change_set = function (div) {
     'use strict';
-    app.need_save = true;
+    app.need_save();
     let date_now = app.data_now();
     // добавляем текущую дату как дату изменения
     div.setAttribute('data-lastChange', date_now);
@@ -2128,7 +2161,7 @@ app.get_last_keymemo = async function (callback_set_list_secrets_HTML) {
 // сохранение параметров в localStorage
 app.logout = async function () {
     //
-    if (!app.start_from_local_disk && app.need_save) {
+    if (!app.start_from_local_disk && app.need_save_value) {
         app.remove_attr_notSaved(app.div_list_secrets);
         // ** локально сохраняем **
         app.save_to_localStorage();
@@ -2149,8 +2182,7 @@ app.save_to_localStorage = async function () {
     // ** локально сохраняем **
     // сохраняем в localStorage
     localStorage['folder_id_drive_google_com'] = app.folder_id_drive_google_com;
-    //    folder_on_drive_google_com: '',
-    localStorage['welcome_phrase'] = app.welcome_phrase;
+    localStorage['welcome_phrase'] = app.encrypt(app.welcome_phrase);
 
     // если serviceWorker существует - сохранияем версию
     if (navigator.serviceWorker.controller) {
@@ -2167,7 +2199,7 @@ app.local_login = function (callback) {
     if (!app.start_from_local_disk) {
         clearTimeout(app.timer_every_hour);
         app.folder_id_drive_google_com = localStorage['folder_id_drive_google_com'];
-        app.welcome_phrase = localStorage['welcome_phrase'];
+
         // проверка drive.google.com на секреты новее
         app.load_div_list_secrets_from_localStorage();
         app.spinner_none();
@@ -2220,7 +2252,7 @@ app.check_where_newer_list_secret = async function () {
                         if (window.confirm(string)) {
                             app.div_list_secrets.innerHTML = gdrive_list_secret.innerHTML;
                             copy_div_attributes(gdrive_list_secret, app.div_list_secrets);
-                            app.need_save = true;
+                            app.need_save();
                             app.logout();
                         }
                     }

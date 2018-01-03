@@ -1,4 +1,4 @@
-let version = '20171207';
+let version = '20180101';
 
 var dataCacheName = 'keymemo-' + version;
 var cacheName = 'keymemo-next' + version;

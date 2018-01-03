@@ -5,10 +5,37 @@
  * определяем passphrase, запускаем третий этам
  */
 set_passphrase = function () {
-    //    app.passPhrase =  header_input.value;
+    var decrypt_welcome_phrase;
+    // если app.passPhrase==='', то назначаем default_PassPhrase=''
     app.passPhrase = (header_input.value === '') ? 'default_PassPhrase' : header_input.value;
-    header_input.value = '';
-    app.state2();
+
+    function to_state2() {
+        header_input.value = '';
+        app.state2();
+    }
+
+    // проверяем правильность passPhrase расшифровывая welcome_phrase
+    if (localStorage['welcome_phrase']) {
+        decrypt_welcome_phrase = app.decrypt(localStorage['welcome_phrase']);
+        app.enter_number_press_to_in++;
+        if (decrypt_welcome_phrase == "Error decrypting.") {
+            // Error decrypting
+            document.getElementById('welcome_phrase').classList.add('welcome_phrase_alert');
+            if (default_enter_number_press_to_in <= app.enter_number_press_to_in) {
+                to_state2();
+            }
+        } else {
+            document.getElementById('welcome_phrase').classList.remove('welcome_phrase_alert');
+            to_state2();
+        }
+
+    } else {
+        to_state2();
+    }
+    // welcome_phrase
+    document.getElementById('welcome_phrase').style.display = 'block';
+    document.getElementById('welcome_phrase').innerHTML = decrypt_welcome_phrase;
+
 }
 
 menuButton = function () {
@@ -56,7 +83,6 @@ function state() {
             // inbox_label
             app.header_input_placeholder.classList.remove('inbox_label');
             void app.header_input_placeholder.offsetWidth;
-//            app.header_input_placeholder.offsetWidth = app.header_input_placeholder.offsetWidth;
             app.header_input_placeholder.classList.add('inbox_label');
 
             // если запуск с локального диска
@@ -85,52 +111,64 @@ function timer_autosave(value) {
     let time_logout = 0;
     var timer = 0;
     var _this = this;
+
+    function pie_restart() {
+        // по новой запускаем круговую диаграмму
+        app.pie_element.classList = '';
+        void app.pie_element.offsetWidth;
+        app.pie_element.classList = 'timer_1min';
+    }
     return {
-        // тики таймера
+        // тики таймера, каждую минуту
         tick: function () {
             // обновить дату последнего изменения списка секретов
             app.last_change_list_secrets.innerHTML = app.data_change_diff_now(app.get_data_change_list_secret());
             time_logout--;
+            pie_restart();
 
-            if (time_logout % 2) {
-                autosave_in.classList = 'autosave_in';
-            } else {
-                autosave_in.classList = 'autosave_in_alarm';
-            }
             if (time_logout < 1) {
                 clearTimeout(_this.timer);
+                app.pie_element.classList = '';
                 _this.timer = 0;
                 _this.exit();
             }
-            autosave_in.innerHTML = time_logout;
+            if (time_logout < 10) {
+                app.autosave_in_element.innerHTML = "0" + time_logout;
+            } else {
+                app.autosave_in_element.innerHTML = time_logout;
+            }
 
         },
         // инициализация таймера
         init: function () {
             _this = this;
             time_logout = 10;
-            autosave_in.innerHTML = time_logout;
+            app.autosave_in_element.innerHTML = time_logout;
+            _this.remove();
             _this.timer = setInterval(this.tick, (time_logout * 6000));
             //            _this.timer = setInterval(this.tick, (time_logout * 60));
             app.esc_number_press_to_out = 0;
             // выход по кнопке ESC если не было изменений
             document.addEventListener("keyup", esc_to_out);
+            app.timer_div_element.classList.add('element_show');
+            pie_restart();
         },
         // сброс таймера
         reset: function () {
             if (_this && _this.timer && _this.timer !== 0) {
                 time_logout = 10;
-                if (typeof autosave_in != 'undefined') {
-                    autosave_in.innerHTML = time_logout;
+                if (typeof app.autosave_in_element != 'undefined') {
+                    _this.init();
                 }
             }
             app.esc_number_press_to_out = 0;
         },
         // автоматическое сохранение
         exit: async function () {
+            app.timer_div_element.classList.add('element_hidden');
             // обновить дату последнего изменения списка секретов
             app.last_change_list_secrets.innerHTML = app.get_data_change_list_secret();
-            autosave_in.innerHTML = 'now';
+            app.autosave_in_element.innerHTML = 'now';
             await app.logout();
         },
         // удаление таймера
