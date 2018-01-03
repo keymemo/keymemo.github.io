@@ -21,7 +21,7 @@ var app = {
 
     // id папки на drive.google.com
     folder_id_drive_google_com: localStorage['folder_id_drive_google_com'],
-    // в хранилище
+    // в дешифрованном виде
     welcome_phrase,
     // в настройках
     new_welcome_phrase_element: document.getElementById('new_welcome_phrase'),
