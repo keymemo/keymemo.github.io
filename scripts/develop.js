@@ -18,19 +18,19 @@ set_passphrase = function () {
     if (localStorage['welcome_phrase']) {
         decrypt_welcome_phrase = app.decrypt(localStorage['welcome_phrase']);
         app.enter_number_press_to_in++;
-        // временный обход перехода со старых установок welcome_phrase="undefined"
+         // временный обход перехода со старых установок welcome_phrase="undefined"
         if (localStorage['welcome_phrase'] == "undefined") {
             decrypt_welcome_phrase = "You must install welcome_phrase";
             to_state2();
         }
         if (decrypt_welcome_phrase == "Error decrypting.") {
             // Error decrypting
-            document.getElementById('welcome_phrase').classList.add('welcome_phrase_alert');
+            app.welcome_phrase_element.classList.add('welcome_phrase_alert');
             if (default_enter_number_press_to_in <= app.enter_number_press_to_in) {
                 to_state2();
             }
         } else {
-            document.getElementById('welcome_phrase').classList.remove('welcome_phrase_alert');
+            app.welcome_phrase_element.classList.remove('welcome_phrase_alert');
             to_state2();
         }
 
@@ -38,14 +38,15 @@ set_passphrase = function () {
         to_state2();
     }
     // welcome_phrase
-    document.getElementById('welcome_phrase').style.display = 'block';
-    document.getElementById('welcome_phrase').innerHTML = decrypt_welcome_phrase;
+    app.welcome_phrase_element.style.display = 'block';
+    app.welcome_phrase_element.innerHTML = decrypt_welcome_phrase;
 
 }
 
 menuButton = function () {
     'use strict';
-    div_show_id('div_settings');
+    div_show(app.div_settings);
+    app.new_welcome_phrase_element.focus();
 };
 
 function state() {

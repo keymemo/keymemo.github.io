@@ -21,7 +21,9 @@ var app = {
 
     // id папки на drive.google.com
     folder_id_drive_google_com: localStorage['folder_id_drive_google_com'],
-    // в дешифрованном виде
+    // элемент
+    welcome_phrase_element: document.getElementById('welcome_phrase'),
+    // в хранилище
     welcome_phrase,
     // в настройках
     new_welcome_phrase_element: document.getElementById('new_welcome_phrase'),
@@ -515,10 +517,10 @@ app.change_welcome_phrase = function () {
     // если фраза изменилась
     if (app.welcome_phrase != app.new_welcome_phrase_element.value) {
         app.welcome_phrase = app.new_welcome_phrase_element.value;
-        document.getElementById('welcome_phrase').innerHTML = app.welcome_phrase;
+        app.welcome_phrase_element.innerHTML = app.welcome_phrase;
         app.need_save();
     }
-    app.div_settings.style.display = 'none';
+    div_hide(app.div_settings);
 }
 
 
@@ -695,7 +697,7 @@ app.include_js_keymemo_com = function (fileContents) {
 app.include_secret_from_keymemo_org = function (fileContents) {
     'use strict';
 
-    app.div_settings.style.display = 'none';
+    div_hide(app.div_settings);
     //  import_passPhrase
     let import_passPhrase = document.getElementById('import_from_keymemo_org_passphrase_input').value;
 
@@ -1773,7 +1775,7 @@ app.edit_secret = function (source_div, link_on_secret) {
 };
 
 app.onkeyup = function (event) {
-    document.getElementById('welcome_phrase').innerHTML = "";
+    app.welcome_phrase_element.innerHTML = "";
     // обработка Enter как нажатия на кнопку
     if (event.keyCode === 13) {
         set_passphrase();
@@ -1849,7 +1851,7 @@ app.search_header_input = function () {
         for (i = 0; i < view_secrets_children.length; i++) {
             // начался новый поиск - прекращаем этот
             if (timer_search !== app.timer_search) {
-//                console.log("search BREAK, app.timer_search=",app.timer_search," timer_search=",timer_search);
+                //                console.log("search BREAK, app.timer_search=",app.timer_search," timer_search=",timer_search);
                 break;
             }
 
@@ -1862,12 +1864,12 @@ app.search_header_input = function () {
             app.timeout_search_animation = currentTime.getMilliseconds() + burst_delay - now.getMilliseconds();
             view_secrets_children[i].childNodes[0].dispatchEvent(search_event);
         }
-//        console.log("search end, app.timer_search=",app.timer_search," timer_search=",timer_search);
+        //        console.log("search end, app.timer_search=",app.timer_search," timer_search=",timer_search);
     }
 
     clearTimeout(app.timer_search);
     app.timer_search = setTimeout(search_secrets, 300);
-//    console.log("NEW search, app.timer_search=",app.timer_search," header_input.value=",app.header_input.value);
+    //    console.log("NEW search, app.timer_search=",app.timer_search," header_input.value=",app.header_input.value);
 
 };
 
@@ -2015,7 +2017,7 @@ app.sorting_secrets_abc = function () {
  */
 app.exportHTML = async function () {
     'use strict';
-    app.div_settings.style.display = 'none';
+    div_hide(app.div_settings);
     app.spinner_show();
     // сохраняем как страницу
     function saveAsFile(html_page) {
@@ -2034,7 +2036,7 @@ app.exportHTML = async function () {
 
 app.save_as_HTML_file_on_drive_google_com = async function (callback) {
     'use strict';
-    app.div_settings.style.display = 'none';
+    div_hide(app.div_settings);
     app.unregister_service_worker();
 
     var metadata = {
@@ -2371,7 +2373,7 @@ app.remove_local_data = function () {
     window.localStorage.clear();
     app.unregister_service_worker();
     timer_autosave_in.remove();
-    app.div_settings.style.display = 'none';
+    div_hide(app.div_settings);
     app.div_view_secrets.style.display = 'none';
     document.getElementById('div_autosave_in').innerHTML = 'Need Reload';
     document.getElementById('secrets_and_control_element').innerHTML = '';
