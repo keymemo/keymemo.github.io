@@ -5,8 +5,8 @@
  * определяем passphrase, запускаем третий этам
  */
 set_passphrase = function () {
-    var decrypt_welcome_phrase;
-    // если app.passPhrase==='', то назначаем default_PassPhrase=''
+    let decrypt_welcome_phrase;
+    // если app.passPhrase==='', то назначаем default_PassPhrase='default_PassPhrase'
     app.passPhrase = (header_input.value === '') ? 'default_PassPhrase' : header_input.value;
 
     function to_state2() {

@@ -8,6 +8,8 @@ let default_esc_number_press_to_out = 4;
 // количество нажатий Enter при неправильно ввевденной passphrase
 let default_enter_number_press_to_in = 4;
 
+'use strict';
+
 //Состояние приложения
 var app = {
     // авторизован
@@ -23,8 +25,6 @@ var app = {
     folder_id_drive_google_com: localStorage['folder_id_drive_google_com'],
     // элемент
     welcome_phrase_element: document.getElementById('welcome_phrase'),
-    // в хранилище
-    welcome_phrase,
     // в настройках
     new_welcome_phrase_element: document.getElementById('new_welcome_phrase'),
     enter_number_press_to_in: 0,
@@ -501,6 +501,7 @@ app.changePassPhrase = function () {
     }
 
     app.div_list_secrets.innerHTML = new_list_secret.innerHTML;
+    localStorage['welcome_phrase'] = app.encrypt(app.welcome_phrase_element.innerHTML, new_passPhrase);
 
     app.need_save();
     app.logout();
@@ -511,14 +512,14 @@ app.changePassPhrase = function () {
  */
 app.change_welcome_phrase = function () {
     'use strict';
+    // если длина новой welcome_phrase равна нулю - то по умолчанию
     if (app.new_welcome_phrase_element.value == "") {
         app.new_welcome_phrase_element.value = "KeyMemo.NEXT";
     }
     // если фраза изменилась
-    if (app.welcome_phrase != app.new_welcome_phrase_element.value) {
-        app.welcome_phrase = app.new_welcome_phrase_element.value;
-        app.welcome_phrase_element.innerHTML = app.welcome_phrase;
-        app.need_save();
+    if (app.welcome_phrase_element.innerHTML != app.new_welcome_phrase_element.value) {
+        app.welcome_phrase_element.innerHTML = app.new_welcome_phrase_element.value;
+        localStorage['welcome_phrase'] = app.encrypt(app.welcome_phrase_element.innerHTML);
     }
     div_hide(app.div_settings);
 }
@@ -2184,7 +2185,6 @@ app.save_to_localStorage = async function () {
     // ** локально сохраняем **
     // сохраняем в localStorage
     localStorage['folder_id_drive_google_com'] = app.folder_id_drive_google_com;
-    localStorage['welcome_phrase'] = app.encrypt(app.welcome_phrase);
 
     // если serviceWorker существует - сохранияем версию
     if (navigator.serviceWorker.controller) {
