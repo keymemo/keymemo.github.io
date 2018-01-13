@@ -190,8 +190,7 @@ label {
 .label0,
 .lastChange_secret_title,
 .service_worker_cache_version,
-.service_worker_cache_version_alert
-{
+.service_worker_cache_version_alert {
     font-size: 1.2em;
     font-family: monospace ! important;
     font-weight: bold;
@@ -285,8 +284,7 @@ label {
 }
 
 .link_on_secret,
-.link_on_secret_hover,
-.hideBlock {
+.link_on_secret_hover {
     font-size: 190%;
     font-family: monospace ! important;
     font-weight: bold;
@@ -1171,7 +1169,8 @@ hr {
  */
 
 .timer_1min {
-    width: 1.2em; height: 1.2em;
+    width: 1.2em;
+    height: 1.2em;
     border-radius: 50%;
     background: white;
     background-image: linear-gradient(to right, transparent 50%, currentColor 0);
@@ -1192,10 +1191,15 @@ hr {
 }
 
 @keyframes spin {
-    to { transform: rotate(.5turn); }
+    to {
+        transform: rotate(.5turn);
+    }
 }
+
 @keyframes bg {
-    50% { background: currentColor; }
+    50% {
+        background: currentColor;
+    }
 }
 
 
@@ -1230,7 +1234,7 @@ hr {
 
 #above_the_title_top_right {
     text-align: left;
-/*    float: left;*/
+    /*    float: left;*/
     color: red;
     font-weight: bold;
     cursor: pointer;
@@ -1384,14 +1388,27 @@ hr {
     }
 }
 
-.hideBlock {
+.hideBlock_beautifully,
+.hideBlock_immediately {
     font-size: 0%;
     margin-top: 0;
     margin-bottom: 0;
-    box-shadow: none;
     border: 0px;
     width: 0;
+    padding: 0px;
+}
+
+
+.hideBlock_beautifully {
     transition: all .3s ease-in-out;
+}
+
+.hideBlock_immediately {
+    /*display: none;*/
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+    -o-transition: none !important;
+    transition: none !important;
 }
 
 .inbox_label {
@@ -1412,7 +1429,7 @@ hr {
 
 .header_input:focus ~ #header_input_placeholder,
 .header_input:valid ~ #header_input_placeholder,
-.welcome_phrase{
+.welcome_phrase {
     color: white;
     font-size: 80%;
     top: -0.7em;
@@ -1442,6 +1459,7 @@ hr {
     border-radius: 3px !important;
     padding: 0px 10px 0px 10px;
 }
+
 .welcome_phrase {
     float: right;
 }
@@ -1489,10 +1507,10 @@ hr {
     font-weight: bold;
 }
 
-.element_hidden{
+.element_hidden {
     display: none;
 }
 
-.element_show{
+.element_show {
     display: block;
 }

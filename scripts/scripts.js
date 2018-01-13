@@ -983,6 +983,19 @@ app.construct_HTML_page_for_export = async function (include_all) {
     return html_page;
 }
 
+// видим ли элемент?
+app.element_is_visible = function (el) {
+    var rect = el.getBoundingClientRect();
+    var elemTop = rect.top;
+    var elemBottom = rect.bottom;
+
+    // Only completely visible elements return true:
+    var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);
+    // Partially visible elements return true:
+    //isVisible = elemTop < window.innerHeight && elemBottom >= 0;
+    return isVisible;
+}
+
 /**
  * обновляем 'view_secrets' в соответствии с 'div_list_secrets'
  * @returns {[[Type]]} [[Description]]
@@ -1021,33 +1034,31 @@ app.recreate_view_secrets = function () {
             });
         // событие для поиска внутри зашифрованных полей
         a.addEventListener('search_in', function (e) {
-            const classname = 'hideBlock';
-            const inc_timeout_search_animation = 10;
-
-            function check_classname(classList) {
-                if (classList.match(classname)) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
 
             function a_show(a) {
                 const classList = a.classList.toString();
-                if (check_classname(classList)) {
+                if (app.element_is_visible(a)) {
                     setTimeout(function () {
-                        a.classList.remove(classname);
+                        a.classList.remove('hideBlock_beautifully');
+                        a.classList.remove('hideBlock_immediately');
                     }, app.timeout_search_animation);
+                } else {
+                    a.classList.remove('hideBlock_beautifully');
+                    a.classList.remove('hideBlock_immediately');
                 }
             }
 
             function a_hide(a) {
                 const classList = a.classList.toString();
-                if (!check_classname(classList)) {
+                // если элемент видим
+                if (app.element_is_visible(a)) {
                     setTimeout(function () {
-                        a.classList.add(classname);
+                        a.classList.add('hideBlock_beautifully');
                     }, app.timeout_search_animation);
+                } else {
+                    a.classList.add('hideBlock_immediately');
                 }
+                //                }
             }
             //console.info("Event is: ", e);
             //console.info("Custom data is: ", e.detail);
@@ -1071,7 +1082,7 @@ app.recreate_view_secrets = function () {
                             };
 
                             let array_word_escape = escape(array_word[i]);
-                            //                            console.log('  array_word_escape->' + array_word_escape);
+                            // console.log('  array_word_escape->' + array_word_escape);
 
                             if (innerHTML.toLowerCase().match(array_word_escape)) {
                                 //console.log('    частичное совпадение, слово ' + i + ' ->' + array_word[i] + ' поле->' + innerHTML);
@@ -1817,8 +1828,6 @@ app.search_header_input = function () {
         //сохраняем текущий поиск
         let timer_search = app.timer_search;
 
-        app.timeout_search_animation = 0;
-
         // ограничение максимального количества символов для поиска
         const max_chars = 20;
         if (app.header_input.value.length > max_chars) {
@@ -1846,10 +1855,11 @@ app.search_header_input = function () {
         });
 
         // задержка для вывода/сокрытия "пачками"
-        let burst_delay = 333; // 1000=1 сек
+        let burst_delay = 100; // 1000=1 сек
         let currentTime = new Date();
         // по всем секретам
-        for (i = 0; i < view_secrets_children.length; i++) {
+        //        for (i = 0; i < view_secrets_children.length; i++) {
+        for (i = view_secrets_children.length - 1; i >= 0; i--) {
             // начался новый поиск - прекращаем этот
             if (timer_search !== app.timer_search) {
                 //                console.log("search BREAK, app.timer_search=",app.timer_search," timer_search=",timer_search);
@@ -1860,9 +1870,10 @@ app.search_header_input = function () {
             // если время следующей пачки подошло - назначаем новое время
             if (currentTime.getMilliseconds() + burst_delay <= now.getMilliseconds()) {
                 currentTime = now;
-
             }
             app.timeout_search_animation = currentTime.getMilliseconds() + burst_delay - now.getMilliseconds();
+
+            // ищем в текущем секрете
             view_secrets_children[i].childNodes[0].dispatchEvent(search_event);
         }
         //        console.log("search end, app.timer_search=",app.timer_search," timer_search=",timer_search);
