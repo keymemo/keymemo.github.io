@@ -1398,7 +1398,6 @@ hr {
     padding: 0px;
 }
 
-
 .hideBlock_beautifully {
     transition: all .3s ease-in-out;
 }
@@ -1409,6 +1408,10 @@ hr {
     -moz-transition: none !important;
     -o-transition: none !important;
     transition: none !important;
+}
+
+.now_is_searching {
+    background: lightgray;
 }
 
 .inbox_label {

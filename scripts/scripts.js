@@ -58,7 +58,6 @@ var app = {
     import_from_keymemo_com_button: document.getElementById('import_from_keymemo_com_button'),
 
     keyboardLayout_element: document.getElementById('keyboardLayout'),
-    //    capsLockState: document.getElementById('capsLockState'),
     header_input_placeholder: document.getElementById('header_input_placeholder'),
     // если запуск с локального диска - возвращем true
     start_from_local_disk: ('file:' === window.location.protocol.toString()) ? true : false,
@@ -78,6 +77,7 @@ var app = {
     pie_element: document.getElementById('pie'),
     // таймер обратного отсчета
     timer_div_element: document.getElementById('timer_div'),
+    input_value_custom: "",
 };
 
 // необходимо сохранение
@@ -1820,69 +1820,75 @@ app.keypress = function (event) {
 }
 // поиск в соответствии с header_input
 app.search_header_input = function () {
-    // поиск по всем полям секретов, ненайденные скрываются.
-    function search_secrets() {
-        'use strict';
-        let i;
 
-        //сохраняем текущий поиск
-        let timer_search = app.timer_search;
+    // поиск по всем полям секретов, ненайденные скрываются.
+    function find_secrets() {
+        'use strict';
+        let header_input_value = app.header_input.value;
+        //        console.log("NEW search, app.timer_search=", app.timer_search, " header_input.value=", header_input_value);
 
         // ограничение максимального количества символов для поиска
-        const max_chars = 20;
-        if (app.header_input.value.length > max_chars) {
+        const max_chars = 40;
+        if (header_input_value.length > max_chars) {
             app.header_input.value = app.header_input.value.substr(0, max_chars);
         }
-        // первый пробел удаляем
-        if (app.header_input.value[0] === ' ') {
-            app.header_input.value = '';
-        }
 
-        let view_secrets_children = app.div_view_secrets.children;
         //нормализуем входные данные
-        let input_value = app.header_input.value.toLowerCase();
-        // убираем двойные пробелы
-        input_value = input_value.replace(/ {1,}/g, ' ');
+        let input_value = header_input_value.toLowerCase(); // в нижний регистр
+        input_value = input_value.replace(/ {1,}/g, ' '); // убираем двойные пробелы
+        input_value = input_value.replace(/^\s*/, ''); // все пробельные символы в начале строки
+        input_value = input_value.replace(/\s+$/, ''); // все пробельные символы в конце строки
 
-        //массив слов для поиска
-        let words = input_value.split(' ');
+        // если строка поиска изменилась - ищем
+        if (app.input_value_custom != input_value) {
+            // затемнение
+            setTimeout(function () {
+                app.div_view_secrets.classList.add('now_is_searching');
+                void app.div_view_secrets.offsetWidth;
+            }, 1);
 
-        // в событии передаем массив слов для поиска
-        let search_event = new CustomEvent('search_in', {
-            detail: {
-                array_word: words
+            app.input_value_custom = input_value;
+
+            let view_secrets_children = app.div_view_secrets.children;
+
+            //массив слов для поиска
+            let words = input_value.split(' ');
+
+            // в событии передаем массив слов для поиска
+            let search_event = new CustomEvent('search_in', {
+                detail: {
+                    array_word: words
+                }
+            });
+
+            // задержка для вывода/сокрытия "пачками"
+            let burst_delay = 100; // 1000=1 сек
+            let currentTime = new Date();
+            // по всем секретам с конца
+            //        for (i = 0; i < view_secrets_children.length; i++) {
+            for (let i = view_secrets_children.length - 1; i >= 0; i--) {
+                let now = new Date();
+                // если время следующей пачки подошло - назначаем новое время
+                if (currentTime.getMilliseconds() + burst_delay <= now.getMilliseconds()) {
+                    currentTime = now;
+                }
+                app.timeout_search_animation = currentTime.getMilliseconds() + burst_delay - now.getMilliseconds();
+
+                // ищем в текущем секрете
+                view_secrets_children[i].childNodes[0].dispatchEvent(search_event);
             }
-        });
 
-        // задержка для вывода/сокрытия "пачками"
-        let burst_delay = 100; // 1000=1 сек
-        let currentTime = new Date();
-        // по всем секретам
-        //        for (i = 0; i < view_secrets_children.length; i++) {
-        for (i = view_secrets_children.length - 1; i >= 0; i--) {
-            // начался новый поиск - прекращаем этот
-            if (timer_search !== app.timer_search) {
-                //                console.log("search BREAK, app.timer_search=",app.timer_search," timer_search=",timer_search);
-                break;
-            }
-
-            let now = new Date();
-            // если время следующей пачки подошло - назначаем новое время
-            if (currentTime.getMilliseconds() + burst_delay <= now.getMilliseconds()) {
-                currentTime = now;
-            }
-            app.timeout_search_animation = currentTime.getMilliseconds() + burst_delay - now.getMilliseconds();
-
-            // ищем в текущем секрете
-            view_secrets_children[i].childNodes[0].dispatchEvent(search_event);
+            // снимаем затемнение
+            setTimeout(function () {
+                app.div_view_secrets.classList.remove('now_is_searching');
+                void app.div_view_secrets.offsetWidth;
+            }, currentTime.getMilliseconds() + 500 - (new Date()).getMilliseconds());
         }
-        //        console.log("search end, app.timer_search=",app.timer_search," timer_search=",timer_search);
+        //        console.log("search end, app.timer_search=", app.timer_search);
     }
 
     clearTimeout(app.timer_search);
-    app.timer_search = setTimeout(search_secrets, 300);
-    //    console.log("NEW search, app.timer_search=",app.timer_search," header_input.value=",app.header_input.value);
-
+    app.timer_search = setTimeout(find_secrets, 500);
 };
 
 /**
@@ -2488,4 +2494,4 @@ app.chech_version_service_worker = function () {
             1000);
     }
 
-}
+};
