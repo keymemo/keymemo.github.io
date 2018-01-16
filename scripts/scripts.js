@@ -985,12 +985,12 @@ app.construct_HTML_page_for_export = async function (include_all) {
 
 // видим ли элемент?
 app.element_is_visible = function (el) {
-    var rect = el.getBoundingClientRect();
-    var elemTop = rect.top;
-    var elemBottom = rect.bottom;
+    let rect = el.getBoundingClientRect();
+    let elemTop = rect.top;
+    let elemBottom = rect.bottom;
 
     // Only completely visible elements return true:
-    var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);
+    let isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);
     // Partially visible elements return true:
     //isVisible = elemTop < window.innerHeight && elemBottom >= 0;
     return isVisible;
@@ -1036,27 +1036,25 @@ app.recreate_view_secrets = function () {
         a.addEventListener('search_in', function (e) {
 
             function a_show(a) {
-                const classList = a.classList.toString();
+                const classList = a.classList;
                 if (app.element_is_visible(a)) {
                     setTimeout(function () {
-                        a.classList.remove('hideBlock_beautifully');
-                        a.classList.remove('hideBlock_immediately');
+                        classList.remove('hideBlock_beautifully', 'hideBlock_immediately');
                     }, app.timeout_search_animation);
                 } else {
-                    a.classList.remove('hideBlock_beautifully');
-                    a.classList.remove('hideBlock_immediately');
+                    classList.remove('hideBlock_beautifully', 'hideBlock_immediately');
                 }
             }
 
             function a_hide(a) {
-                const classList = a.classList.toString();
+                const classList = a.classList;
                 // если элемент видим
                 if (app.element_is_visible(a)) {
                     setTimeout(function () {
-                        a.classList.add('hideBlock_beautifully');
+                        classList.add('hideBlock_beautifully');
                     }, app.timeout_search_animation);
                 } else {
-                    a.classList.add('hideBlock_immediately');
+                    classList.add('hideBlock_immediately');
                 }
                 //                }
             }
@@ -1821,6 +1819,9 @@ app.keypress = function (event) {
 // поиск в соответствии с header_input
 app.search_header_input = function () {
 
+    // задержка для вывода/сокрытия "пачками"
+    let burst_delay = 100; // 1000=1 сек
+
     // поиск по всем полям секретов, ненайденные скрываются.
     function find_secrets() {
         'use strict';
@@ -1861,8 +1862,6 @@ app.search_header_input = function () {
                 }
             });
 
-            // задержка для вывода/сокрытия "пачками"
-            let burst_delay = 100; // 1000=1 сек
             let currentTime = new Date();
             // по всем секретам с конца
             //        for (i = 0; i < view_secrets_children.length; i++) {
@@ -1882,13 +1881,13 @@ app.search_header_input = function () {
             setTimeout(function () {
                 app.div_view_secrets.classList.remove('now_is_searching');
                 void app.div_view_secrets.offsetWidth;
-            }, currentTime.getMilliseconds() + 500 - (new Date()).getMilliseconds());
+            }, currentTime.getMilliseconds() + burst_delay * 2 - (new Date()).getMilliseconds());
         }
         //        console.log("search end, app.timer_search=", app.timer_search);
     }
 
     clearTimeout(app.timer_search);
-    app.timer_search = setTimeout(find_secrets, 500);
+    app.timer_search = setTimeout(find_secrets, burst_delay * 5);
 };
 
 /**

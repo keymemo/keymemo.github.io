@@ -1465,6 +1465,7 @@ hr {
 
 .welcome_phrase {
     float: right;
+    line-height: 0.9;
 }
 
 .welcome_phrase_alert {
