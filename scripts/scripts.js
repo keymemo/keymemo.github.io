@@ -1148,7 +1148,7 @@ app.data_now = function () {
     }
 
     // в формате "YYYY-MM-DD_HH:MM:SS(UTC)"
-    let date_now = curYear + '-' + curMonth + '-' + curDay + '_' + curHour + ':' + curMinute + ':' + curSeconds + '(UTC)';
+    let date_now = curYear + '-' + curMonth + '-' + curDay + '_' + curHour + '-' + curMinute + '-' + curSeconds + '(UTC)';
     return date_now;
 };
 
